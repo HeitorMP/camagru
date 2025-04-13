@@ -22,8 +22,9 @@ class AuthController {
             $confirm_password = $_POST['confirm_password'] ?? '';
 
             if ($password !== $confirm_password) {
-                echo "Senhas não conferem.";
-                return;
+                $_SESSION['flash'] = 'Passwords do not match.';
+                header("Location: index.php?page=register&error=not_match");
+                exit;
             }
 
             $user = new User();
@@ -31,7 +32,9 @@ class AuthController {
                 header("Location: index.php?page=login");
                 exit;
             } else {
-                echo "Erro ao registrar usuário.";
+                $_SESSION['flash'] = 'Registration failed. Please try again.';
+                header("Location: index.php?page=register&error=failed");
+                exit;
             }
         }
     }
@@ -48,7 +51,8 @@ class AuthController {
                 header("Location: index.php?page=gallery");
                 exit;
             } else {
-                echo "Invalid email or password.";
+                $_SESSION['flash'] = 'Invalid email or password.';
+                header("Location: index.php?page=login&error=invalid");
             }
         }
     }

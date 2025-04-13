@@ -32,6 +32,12 @@ switch ($page) {
         require BASE_PATH . '/app/controllers/GalleryController.php';
         (new GalleryController())->showGallery();
         break;
+
+    case 'logout':
+        session_start();
+        session_destroy();
+        header('Location: index.php?page=login');
+        exit();
     default:
         http_response_code(404);
         echo "Página não encontrada.";
