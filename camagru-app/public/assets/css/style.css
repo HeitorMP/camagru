@@ -9,3 +9,17 @@ footer {
     min-height: 50px;
     background: PapayaWhip;
 }
+
+.flash.success {
+    color: green;
+    background-color: #e0ffe0;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.flash.error {
+    color: red;
+    background-color: #ffe0e0;
+    padding: 10px;
+    border-radius: 5px;
+}

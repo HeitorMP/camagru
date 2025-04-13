@@ -1,5 +1,7 @@
 <?php
 require_once BASE_PATH . '/app/models/User.php';
+require_once BASE_PATH . '/app/helpers/redirect.php';
+require_once BASE_PATH . '/app/helpers/messages.php';
 
 class AuthController {
     public function showLogin() {
@@ -22,19 +24,14 @@ class AuthController {
             $confirm_password = $_POST['confirm_password'] ?? '';
 
             if ($password !== $confirm_password) {
-                $_SESSION['flash'] = 'Passwords do not match.';
-                header("Location: index.php?page=register&error=not_match");
-                exit;
+                redirectWithFlash('register', message('auth.password_mismatch'));
             }
 
             $user = new User();
             if ($user->create($username, $email, $password)) {
-                header("Location: index.php?page=login");
-                exit;
+                redirectWithFlash('login', message('auth.register_success'));
             } else {
-                $_SESSION['flash'] = 'Registration failed. Please try again.';
-                header("Location: index.php?page=register&error=failed");
-                exit;
+                redirectWithFlash('register', message('auth.register_failed'));
             }
         }
     }
@@ -46,13 +43,14 @@ class AuthController {
 
             $user = new User();
             if ($user->login($email, $password)) {
-                session_start();
+                if (session_status() === PHP_SESSION_NONE) {
+                    session_start();
+                }
                 $_SESSION['user_id'] = $user->getId();
-                header("Location: index.php?page=gallery");
+                redirectWithFlash('gallery', message('auth.login_success'));
                 exit;
             } else {
-                $_SESSION['flash'] = 'Invalid email or password.';
-                header("Location: index.php?page=login&error=invalid");
+                redirectWithFlash('login', message('auth.login_failed'));
             }
         }
     }
