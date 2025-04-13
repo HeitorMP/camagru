@@ -1,18 +1,19 @@
 <h2>Register</h2>
 
-<form method="post" action="index.php?page=register_submit">
+<form form id="registerForm" method="post" action="index.php?page=register_submit">
   <label>Username: <input type="text" name="username" required></label><br>
   <label>Email: <input type="email" name="email" required></label><br>
   <label>Password: <input type="password" name="password" required></label><br>
   <label>Confirm Password: <input type="password" name="confirm_password" required></label><br>
   <button type="submit">Register</button>
 </form>
+<p id="statusMsg" class=" "></p>
 
 <p>Already have an account? <a href="index.php?page=login">Login here</a></p>
 
 <?php $flash = getFlash(); ?>
-<?php if ($flash): ?>
-    <div class="flash <?= $flash['type'] ?>">
+<div id="flashMessageRegister" class="flash <?= $flash ? $flash['type'] : '' ?>">
+    <?php if ($flash): ?>
         <?= htmlspecialchars($flash['message']) ?>
-    </div>
-<?php endif; ?>
+    <?php endif; ?>
+</div>

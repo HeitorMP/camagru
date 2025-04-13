@@ -18,15 +18,27 @@ class AuthController {
 
     public function register() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $username = $_POST['username'] ?? '';
-            $email = $_POST['email'] ?? '';
-            $password = $_POST['password'] ?? '';
-            $confirm_password = $_POST['confirm_password'] ?? '';
+
+            // Sanitize and validate input
+            $username = strtolower(trim($_POST['username'] ?? ''));
+            $email = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
+            $password = trim($_POST['password'] ?? '');
+            $confirm_password = trim($_POST['confirm_password'] ?? '');
+
+
+            if (!preg_match('/^[A-Za-z][A-Za-z\d]{7}$/', $username)) {
+                redirectWithFlash('register', message('auth.invalid_username_pattern'));
+            }
+            
+            if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,16}$/', $password)) {
+                redirectWithFlash('register', message('auth.ivalid_password_pattern'));
+            }
 
             if ($password !== $confirm_password) {
                 redirectWithFlash('register', message('auth.password_mismatch'));
             }
 
+            // Create a new user
             $user = new User();
             if ($user->create($username, $email, $password)) {
                 redirectWithFlash('login', message('auth.register_success'));
@@ -38,8 +50,13 @@ class AuthController {
 
     public function login() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $email = $_POST['login'] ?? '';
-            $password = $_POST['password'] ?? '';
+            // Sanitize and validate input
+            $email = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
+            $password = trim($_POST['password'] ?? '');
+            
+            if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,16}$/', $password)) {
+                redirectWithFlash('login', message('auth.ivalid_password_pattern'));
+            }
 
             $user = new User();
             if ($user->login($email, $password)) {
