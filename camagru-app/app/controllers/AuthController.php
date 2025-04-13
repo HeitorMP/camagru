@@ -35,4 +35,21 @@ class AuthController {
             }
         }
     }
+
+    public function login() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $email = $_POST['login'] ?? '';
+            $password = $_POST['password'] ?? '';
+
+            $user = new User();
+            if ($user->login($email, $password)) {
+                session_start();
+                $_SESSION['user_id'] = $user->getId();
+                header("Location: index.php?page=gallery");
+                exit;
+            } else {
+                echo "Invalid email or password.";
+            }
+        }
+    }
 }

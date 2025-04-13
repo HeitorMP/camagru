@@ -13,7 +13,12 @@ switch ($page) {
         (new AuthController())->showLogin();
         break;
 
-    case 'register':
+    case 'login_submit':
+        require BASE_PATH . '/app/controllers/AuthController.php';
+        (new AuthController())->login();
+        break;
+    
+        case 'register':
         require BASE_PATH . '/app/controllers/AuthController.php';
         (new AuthController())->showRegister();
         break;
