@@ -1,5 +1,5 @@
 
-<form action="login.php" method="post">
+<form action="login.php" method="POST">
     <h1>Login</h1>
     <div>
         <label for="username">Username:</label>
