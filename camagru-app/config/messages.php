@@ -1,6 +1,7 @@
 <?php
     return [
         'auth' => [
+            'generic_error' => 'An error occurred. Please try again.',
             'login_failed' => 'Invalid email or password.',
             'register_success' => 'User registered successfully.',
             'register_failed' => 'An error occurred while registering.',
@@ -8,6 +9,8 @@
             'logout' => 'You have been logged out.',
             'invalid_username_pattern' => 'Username must start with a letter and be at least 8 characters long.',
             'ivalid_password_pattern' => 'Password must be 8-16 characters long and contain at least one uppercase letter, one lowercase letter, and one digit.',
+            'username_taken' => 'Username is already taken.',
+            'email_taken' => 'Email is already registered.',
         ],
         'gallery' => [
             'upload_success' => 'Image uploaded successfully.',

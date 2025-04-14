@@ -9,6 +9,12 @@ services:
     depends_on:
       - db
 
+  maildev:
+      image: maildev/maildev
+      ports:
+        - "1080:1080"
+        - "1025:1025"
+
   nginx:
     image: nginx:latest
     container_name: camagru_nginx

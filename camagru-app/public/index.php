@@ -22,6 +22,16 @@ switch ($page) {
         require BASE_PATH . '/app/controllers/AuthController.php';
         (new AuthController())->showRegister();
         break;
+    
+    case 'not_verified':
+        require BASE_PATH . '/app/controllers/AuthController.php';
+        (new AuthController())->showNotVerified();
+        break;
+    
+    case 'activate':
+        require BASE_PATH . '/app/controllers/VerifyController.php';
+        (new VerifyController())->verify();
+        break;
 
     case 'register_submit':
         require BASE_PATH . '/app/controllers/AuthController.php';
@@ -31,6 +41,11 @@ switch ($page) {
     case 'gallery':
         require BASE_PATH . '/app/controllers/GalleryController.php';
         (new GalleryController())->showGallery();
+        break;
+    
+    case 'edit_profile':
+        require BASE_PATH . '/app/controllers/ProfileController.php';
+        (new ProfileController())->showEditProfile();
         break;
 
     case 'logout':

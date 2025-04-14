@@ -27,6 +27,9 @@
               <li class="nav-item">
                   <a class="nav-link" href="index.php?page=editor">Editor</a>
               </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="index.php?page=edit_profile">Edit Profile</a>
+                </li>
               <!-- logout -->
               <li class="nav-item"> 
                   <a class="nav-link" href="index.php?page=logout">Logout</a>

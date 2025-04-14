@@ -1,7 +1,7 @@
 <h2>Login</h2>
 <form id="loginForm" method="post" action="index.php?page=login_submit">
-    <label>Username or Email:<br>
-        <input type="text" name="login" required>
+    <label>Username:<br>
+        <input type="text" name="username" required>
     </label><br><br>
     <label>Password:<br>
         <input type="password" name="password" required>
