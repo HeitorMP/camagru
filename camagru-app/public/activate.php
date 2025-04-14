@@ -13,7 +13,6 @@ if (isset($_GET['code'])) {
     $result = false;
     $id = $user->getUserIdByActivationCode($activation_code);
     if ($id) {
-        echo "User ID: $id";
         $result = $user->updateVerified($id, 1);
     }
     if ($result) {
