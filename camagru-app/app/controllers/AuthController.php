@@ -23,6 +23,12 @@ class AuthController {
         include BASE_PATH . '/app/views/layout/footer.php';
     }
 
+    public function showResetPassword() {
+        include BASE_PATH . '/app/views/layout/header.php';
+        include BASE_PATH . '/app/views/auth/reset_password.php';
+        include BASE_PATH . '/app/views/layout/footer.php';
+    }
+
     public function register() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -32,7 +38,7 @@ class AuthController {
             $password = trim($_POST['password'] ?? '');
             $confirm_password = trim($_POST['confirm_password'] ?? '');
 
-            if (!preg_match('/^[A-Za-z][A-Za-z\d]{7}$/', $username)) {
+            if (!preg_match('/^[A-Za-z][A-Za-z\d]{7,15}$/', $username)) {
                 redirectWithFlash('register', message('auth.invalid_username_pattern'), 'error');
             }
             
@@ -70,7 +76,7 @@ class AuthController {
             $username = strtolower(trim($_POST['username'] ?? ''));
             $password = trim($_POST['password'] ?? '');
             
-            if (!preg_match('/^[A-Za-z][A-Za-z\d]{7}$/', $username)) {
+            if (!preg_match('/^[A-Za-z][A-Za-z\d]{7,15}$/', $username)) {
                 redirectWithFlash('login', message('auth.invalid_username_pattern'), 'error');
             }
             
@@ -89,6 +95,33 @@ class AuthController {
             } else {
                 redirectWithFlash('login', message('auth.login_failed'), 'error');
             }
+        }
+    }
+
+    public function resetPassword() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Sanitize and validate input
+            $email = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                redirectWithFlash('reset_password', message('auth.invalid_email'), 'error');
+            }
+
+            $user = new User();
+            if ($user->checkEmailAvailability($email)) {
+                redirectWithFlash('reset_password', message('auth.email_not_found'), 'error');
+            }
+
+            $id = $user->getIdByEmail($email);
+            if (!$id) {
+                redirectWithFlash('login', message('auth.email_not_found'), 'error');
+            }
+            // Generate a password reset token
+            // reset token must respect the regex
+            $reset_token = generateRandomPassword();
+            $user->updatePassword($id, $reset_token);
+            // Send the password reset email
+            sendResetPassword($email, $reset_token);
+            redirectWithFlash('login', message('auth.reset_password_success'), 'success');
         }
     }
 

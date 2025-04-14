@@ -8,6 +8,8 @@
     </label><br><br>
     <button type="submit">Login</button>
 </form>
+<!-- forgot password -->
+<p>Forgot your password? <a href="index.php?page=reset_password">Reset it here</a></p>
 
 <p>Don't have an account yet? <a href="index.php?page=register">Register here</a></p>
 

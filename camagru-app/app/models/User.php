@@ -118,6 +118,12 @@ class User extends DB {
         }
         return false;
     }
+
+    public function getIdByEmail($email) {
+        $stmt = $this->pdo->prepare("SELECT id FROM users WHERE email = ?");
+        $stmt->execute([$email]);
+        return $stmt->fetchColumn();
+    }
     
     public function deleteUser($id) {
         $stmt = $this->pdo->prepare("DELETE FROM users WHERE id = ?");

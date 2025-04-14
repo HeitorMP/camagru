@@ -17,8 +17,15 @@ switch ($page) {
         require BASE_PATH . '/app/controllers/AuthController.php';
         (new AuthController())->login();
         break;
-    
-        case 'register':
+    case 'reset_password':
+        require BASE_PATH . '/app/controllers/AuthController.php';
+        (new AuthController())->showResetPassword();
+        break;
+    case 'reset_password_submit':
+        require BASE_PATH . '/app/controllers/AuthController.php';
+        (new AuthController())->resetPassword();
+        break;
+    case 'register':
         require BASE_PATH . '/app/controllers/AuthController.php';
         (new AuthController())->showRegister();
         break;

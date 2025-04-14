@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const password = form.password.value;
       const confirm = form.confirm_password.value;
   
-      const usernameRegex = /^[A-Za-z][A-Za-z\d]{7}$/;
+      const usernameRegex = /^[A-Za-z][A-Za-z\d]{7,15}$/;
       const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,16}$/;
   
       let message = "";
