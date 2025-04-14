@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', function () {
       if (message !== "") {
         e.preventDefault();
         flashDiv.textContent = message;
-        flashDiv.className = ""; // clear previous classes
-        flashDiv.classList.add("flash", type); // e.g., "flash error"
+        flashDiv.className = "";
+        flashDiv.classList.add("flash", type);
       }
     });
   });

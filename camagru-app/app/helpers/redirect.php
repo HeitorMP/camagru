@@ -19,7 +19,6 @@
         return null;
     }
     
-
     function redirect($page) {
         $url = "index.php?page=" . $page;
         header("Location: $url");
