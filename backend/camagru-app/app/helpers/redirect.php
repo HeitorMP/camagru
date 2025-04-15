@@ -23,6 +23,7 @@
         if ($page !== null && $message !== null) {
             $response = [
                 'redirect' => $page . "?message=" . $message . "&status=" . $status,
+                'status' => $status,
             ];
         }
         // redirect without message

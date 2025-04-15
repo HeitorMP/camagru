@@ -22,9 +22,21 @@
     
     function sendActivationEmail($email, $activation_code) {
         $subject = "Activate your account";
-        $message = "Click the link to activate your account: ";
-        $message .= "http://localhost:8080/api/?page=activate&code=$activation_code";
-        $headers = "From: camagru@42porto.com";
+    
+        $message = "
+            <html>
+            <head><title>Activate your account</title></head>
+            <body>
+                <p>Click the link to activate your account:</p>
+                <p><a href='http://localhost:8080/activate?email=$email&code=$activation_code'>Activate Account</a></p>
+            </body>
+            </html>
+        ";
+    
+        $headers = "MIME-Version: 1.0\r\n";
+        $headers .= "Content-type: text/html; charset=UTF-8\r\n";
+        $headers .= "From: camagru@42porto.com\r\n";
+    
         mail($email, $subject, $message, $headers);
     }
 

@@ -13,6 +13,7 @@
             'username_taken' => 'Username is already taken.',
             'email_taken' => 'Email is already registered.',
             'activation_code_missing' => 'Activation code is missing.',
+            'acivation_mail_missing' => 'Activation email is missing.',
             'activation_incomplete' => 'Please activate your account.',
             'activation_code_sent' => 'Activation code sent to your email.',
             'activation_success' => 'Account activated successfully.',

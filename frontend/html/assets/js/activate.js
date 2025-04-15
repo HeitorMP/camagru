@@ -1,10 +1,13 @@
 export async function init() {
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
+    const email = params.get('email');
     console.log('Código de ativação:', code);
-    if (code) {
+    console.log('Email:', email);
+    if (code && email) {
         try {
-            const url = '/api/?page=activate&code=' + code;
+            const url = '/api/?page=activate&code=' + code + '&email=' + email;
+            alert('Código de ativação: ' + url);
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -17,12 +20,12 @@ export async function init() {
             if (response.ok) {
                 window.location.href = data.redirect; 
             } else {
-                window.location.href = '/login?message=Activation failed!';
+                window.location.href = '/login?status=error&message=Activation failed!';
             }
         }
         catch (error) {
             console.error('Erro:', error);
-            window.location.href = '/login?message=Activation failed!';
+            window.location.href = '/login?status=error&message=Activation failed!';
         }
     }
     else {

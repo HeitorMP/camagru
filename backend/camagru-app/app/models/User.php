@@ -106,15 +106,13 @@ class User extends DB {
         return true;
     }
 
-    public function getUserIdByActivationCode($activation_code) {
-        $stmt = $this->pdo->prepare("SELECT id, activation_code FROM users WHERE is_verified = 0");
-        $stmt->execute();
-        $users = $stmt->fetchAll();
-    
-        foreach ($users as $user) {
-            if (password_verify($activation_code, $user['activation_code'])) {
-                return $user['id'];
-            }
+    public function checkActivationCode($activation_code, $email) {
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = ?");
+        $stmt->execute([$email]);
+        $user = $stmt->fetch();
+
+        if ($user && password_verify($activation_code, $user['activation_code'])) {
+            return true;
         }
         return false;
     }

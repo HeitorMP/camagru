@@ -95,22 +95,25 @@ class AuthController {
     
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $activation_code = trim($_GET['code'] ?? '');
+            $email = filter_var(trim($_GET['email'] ?? ''), FILTER_SANITIZE_EMAIL);
     
             if (empty($activation_code)) {
                 response('error', '/login', message('auth.activation_code_missing'));
                 return;
             }
+
+            if (empty($email)) {
+                response('error', '/login', message('auth.acivation_mail_missing'));
+                return;
+            }
     
             $user = new User();
-            $id = $user->getUserIdByActivationCode($activation_code);
-            if ($id) {
-                if ($user->activateUser($id, 1)) {
-                    response('success', '/login', message('auth.register_success'));
-                } else {
-                    response('error', '/login', message('auth.activation_failed'));
-                }
+            
+
+            if ($user->checkActivationCode($activation_code, $email)) {
+                response('success', '/login', message('auth.register_success'));
             } else {
-                response('error', '/login', message('auth.invalid_activation_code'));
+                response('error', '/login', message('auth.activation_failed'));
             }
         }
     }

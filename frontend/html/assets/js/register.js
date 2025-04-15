@@ -24,8 +24,7 @@ export function init() {
 
             const flash = document.getElementById('flashMessage');
             if (response.ok && data.status === 'success') {
-                flash.textContent = data.message || 'Success';
-                flash.style.color = 'green';
+                alert('Registro bem-sucedido! Verifique seu e-mail para ativar sua conta.');
                 window.location.href = data.redirect;
             } else {
                 flash.textContent = data.message || 'Erro';
