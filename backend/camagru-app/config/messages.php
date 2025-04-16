@@ -10,6 +10,7 @@
             'logout' => 'You have been logged out.',
             'invalid_username_pattern' => 'Username must start with a letter and be at least 8 characters long.',
             'ivalid_password_pattern' => 'Password must be 8-16 characters long and contain at least one uppercase letter, one lowercase letter, and one digit.',
+            'invalid_email' => 'Invalid email address.',
             'username_taken' => 'Username is already taken.',
             'email_taken' => 'Email is already registered.',
             'activation_code_missing' => 'Activation code is missing.',
@@ -28,6 +29,14 @@
             'empty_email' => 'Email cannot be empty.',
             'empty_password' => 'Password cannot be empty.',
             'empty_confirm_password' => 'Confirm password cannot be empty.',
+        ],
+        'profile' => [
+            'username_update_success' => 'Username updated successfully.',
+            'username_update_failed' => 'Failed to update username.',
+            'email_update_success' => 'Email updated successfully.',
+            'email_update_failed' => 'Failed to update email.',
+            'password_update_success' => 'Password updated successfully.',
+            'password_update_failed' => 'Failed to update password.',
         ],
         'gallery' => [
             'upload_success' => 'Image uploaded successfully.',

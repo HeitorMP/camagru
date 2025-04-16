@@ -20,6 +20,8 @@ export function init() {
         const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value.trim();
     
+        const flash = document.getElementById('flashMessage');
+    
         try {
             const response = await fetch('/api/?page=login', {
                 method: 'POST',
@@ -29,20 +31,27 @@ export function init() {
                 },
                 body: JSON.stringify({ username, password })
             });
-
-            const data = await response.json();
     
-            console.log('Resposta do servidor:', data);
+            let data;
     
-            const flash = document.getElementById('flashMessage');
+            // Tenta fazer o parse do JSON mesmo se o status não for 2xx
+            try {
+                data = await response.json();
+            } catch (jsonError) {
+                data = { message: 'Resposta inválida do servidor.' };
+            }
+    
             if (response.ok && data.status === 'success') {
                 window.location.href = data.redirect;
             } else {
-                flash.textContent = data.message || 'Login error!';
+                flash.textContent = data.message || 'Usuário ou senha inválidos.';
                 flash.style.color = 'red';
             }
+    
         } catch (error) {
-            console.error('Erro:', error);
+            console.error('Erro de rede ou fatal:', error);
+            flash.textContent = 'Erro de rede. Tente novamente mais tarde.';
+            flash.style.color = 'red';
         }
     });
 } 

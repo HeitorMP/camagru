@@ -7,11 +7,9 @@ export async function init() {
     if (code && email) {
         try {
             const url = '/api/?page=activate&code=' + code + '&email=' + email;
-            alert('Código de ativação: ' + url);
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                // body: JSON.stringify({ code }),
             });
 
             const data = await response.json();

@@ -15,15 +15,16 @@
         }
         return null;
     }
-    // echo json_encode(['status' => 'success', 'redirect' => "/login?message=$message"]);
-    function response($status, $page = null, $message = null) {
+
+    function response($status, $page = null, $message = null, $http_code = 200) {
         header('Content-Type: application/json');
+        http_response_code($http_code);
         
         // redirect with message
         if ($page !== null && $message !== null) {
             $response = [
-                'redirect' => $page . "?message=" . $message . "&status=" . $status,
                 'status' => $status,
+                'redirect' => $page . "?message=" . $message . "&status=" . $status,
             ];
         }
         // redirect without message
@@ -46,7 +47,7 @@
                 'status' => $status,
             ];
         }
-    
+
         echo json_encode($response);
         exit();
     }

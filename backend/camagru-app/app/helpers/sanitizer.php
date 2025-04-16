@@ -3,8 +3,8 @@
 require_once BASE_PATH . '/app/models/User.php';
 
 function verifyLoginInput($username, $password) {
-
     $errors = [];
+
     if (empty($username)) {
         $errors[] = message('auth.empty_username');
     }
@@ -22,6 +22,7 @@ function verifyLoginInput($username, $password) {
 
 function verifyRegisterInput($username, $email, $password, $confirm_password) {
     $errors = [];
+
     if (empty($username)) {
         $errors[] = message('auth.empty_username');
     }
@@ -46,15 +47,52 @@ function verifyRegisterInput($username, $email, $password, $confirm_password) {
     if ($password !== $confirm_password) {
         $errors[] = message('auth.password_mismatch');
     }
+    return $errors;
+}
 
-    if (empty($errors)) {
-        $user = new User();
-        if (!$user->checkUsernameAvailability($username)) {
-            $errors[] = message('auth.username_taken');
-        }
-        if (!$user->checkEmailAvailability($email)) {
-            $errors[] = message('auth.email_taken');
-        }
+function verifyResetPasswordInput($email) {
+    $errors = [];
+
+    if (empty($email)) {
+        $errors[] = message('auth.empty_email');
+    }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = message('auth.invalid_email');
+    }
+    return $errors;
+}
+
+function verifyActivationInput($activation_code, $activation_email) {
+    $errors = [];
+
+    if (empty($activation_code)) {
+        $errors[] = message('auth.activation_code_missing');
+    }
+    if (empty($activation_email)) {
+        $errors[] = message('auth.acivation_mail_missing');
+    }
+    return $errors;
+}
+
+function verifyUsernameInput($username) {
+    $errors = [];
+
+    if (empty($username)) {
+        $errors[] = message('auth.empty_username');
+    }
+    if (!preg_match('/^[A-Za-z][A-Za-z\d]{7,15}$/', $username)) {
+        $errors[] = message('auth.invalid_username_pattern');
+    }
+    return $errors;
+}
+
+function verifyEmailInput($email) {
+    $errors = [];
+    if (empty($email)) {
+        $errors[] = message('auth.empty_email');
+    }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = message('auth.invalid_email');
     }
 
     return $errors;

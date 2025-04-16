@@ -1,4 +1,5 @@
 <?php
+
 require_once BASE_PATH . '/app/models/User.php';
 require_once BASE_PATH . '/app/helpers/redirect.php';
 require_once BASE_PATH . '/app/helpers/messages.php';
@@ -23,8 +24,19 @@ class AuthController {
                 response('error', null, $errors);
                 return;
             }
-            // Create a new user
+
             $user = new User();
+            // Check if the username or email already exists
+            if ($user->checkUsernameExists($username)) {
+                response('error', null, message('auth.username_exists'));
+                return;
+            }
+            if ($user->checkEmailExists($email)) {
+                response('error', null, message('auth.email_exists'));
+                return;
+            }
+            
+            // Create a new user sending the activation code
             $activation_code = generateActivationCode();
             if ($user->create($username, $email, $password, $activation_code)) {
                 sendActivationEmail($email, $activation_code);
@@ -35,9 +47,11 @@ class AuthController {
         }
     }
 
+    //ajax login
     public function login() {
+        // header('Content-Type: application/json');
         header('Content-Type: application/json');
-    
+        
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $input = json_decode(file_get_contents("php://input"), true);
             $username = strtolower(trim($input['username'] ?? ''));
@@ -63,22 +77,25 @@ class AuthController {
         }
     }
     
+    //ajax reset password
     public function resetPassword() {
+        header('Content-Type: application/json');
+    
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Sanitize and validate input
-            $email = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                redirectWithFlash('reset_password', message('auth.invalid_email'), 'error');
-            }
+            $input = json_decode(file_get_contents("php://input"), true);
+            $email = filter_var(trim($input['email'] ?? ''), FILTER_SANITIZE_EMAIL);
 
+            $errors = verifyLoginInput($email);
+            if (!empty($errors)) {
+                response('error', null, $errors);
+                return;
+            }
+        
             $user = new User();
-            if ($user->checkEmailAvailability($email)) {
-                redirectWithFlash('reset_password', message('auth.email_not_found'), 'error');
-            }
-
-            $id = $user->getIdByEmail($email);
-            if (!$id) {
-                redirectWithFlash('login', message('auth.email_not_found'), 'error');
+            // Check if the email exists
+            if ($user->checkEmailExists($email)) {
+                response('error', null, message('auth.email_not_found'));
+                return;
             }
             // Generate a password reset token
             // reset token must respect the regex
@@ -86,10 +103,11 @@ class AuthController {
             $user->updatePassword($id, $reset_token);
             // Send the password reset email
             sendResetPassword($email, $reset_token);
-            redirectWithFlash('login', message('auth.reset_password_success'), 'success');
+            response('success', '/login', message('auth.reset_password_success'));
         }
     }
 
+    //ajax activation
     public function activate() {
         header('Content-Type: application/json');
     
@@ -97,34 +115,33 @@ class AuthController {
             $activation_code = trim($_GET['code'] ?? '');
             $email = filter_var(trim($_GET['email'] ?? ''), FILTER_SANITIZE_EMAIL);
     
-            if (empty($activation_code)) {
-                response('error', '/login', message('auth.activation_code_missing'));
+            $errors = verifyActivationInput($activation_code, $email);
+            if (!empty($errors)) {
+                response('error', '/login', $errors);
                 return;
             }
 
-            if (empty($email)) {
-                response('error', '/login', message('auth.acivation_mail_missing'));
-                return;
-            }
-    
             $user = new User();
-            
 
             if ($user->checkActivationCode($activation_code, $email)) {
-                response('success', '/login', message('auth.register_success'));
+                response('success', '/login', message('auth.activation_success'));
             } else {
                 response('error', '/login', message('auth.activation_failed'));
             }
         }
     }
     
-
+    //ajax logout
     public function logout() {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
+        header('Content-Type: application/json');
+    
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
+            unset($_SESSION['user_id']);
+            session_destroy();
+            response('success', '/login', message('auth.logout'));
         }
-        unset($_SESSION['user_id']);
-        session_destroy();
-        redirectWithFlash('login', message('auth.logout_success'), 'success');
     }
 }
