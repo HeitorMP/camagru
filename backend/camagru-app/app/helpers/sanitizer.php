@@ -97,3 +97,21 @@ function verifyEmailInput($email) {
 
     return $errors;
 }
+
+function verifyPasswordInput($password, $confirm_password) {
+    $errors = [];
+
+    if (empty($password)) {
+        $errors[] = message('auth.empty_password');
+    }
+    if (empty($confirm_password)) {
+        $errors[] = message('auth.empty_confirm_password');
+    }
+    if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,16}$/', $password)) {
+        $errors[] = message('auth.ivalid_password_pattern');
+    }
+    if ($password !== $confirm_password) {
+        $errors[] = message('auth.password_mismatch');
+    }
+    return $errors;
+}

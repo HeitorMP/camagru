@@ -86,6 +86,16 @@ class User extends DB {
         return true;
     }
 
+    public function verifyCurrentPassword($id, $current) {
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE id = ?");
+        $stmt->execute([$id]);
+        $user = $stmt->fetch();
+        if (!$user || !password_verify($current, $user['password'])) {
+            return false; // Current password is incorrect
+        }
+        return true;
+    }
+
     public function updatePassword($id, $password) {
         $stmt = $this->pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
         try {

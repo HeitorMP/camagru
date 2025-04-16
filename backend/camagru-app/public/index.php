@@ -33,8 +33,17 @@ switch ($page) {
     case 'update_username':
         $account->updateUsername();
         break;
+    case 'update_email':
+        $account->updateEmail();
+        break;
+    case 'update_password':
+        $account->updatePassword();
+        break;
     case 'logout':
         $auth->logout();
+        break;
+    case 'auth_check':
+        $auth->checkAuth();
         break;
     default:
         http_response_code(404);

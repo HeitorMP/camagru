@@ -29,6 +29,7 @@
             'empty_email' => 'Email cannot be empty.',
             'empty_password' => 'Password cannot be empty.',
             'empty_confirm_password' => 'Confirm password cannot be empty.',
+            'current_password_incorrect' => 'Current password is incorrect.',
         ],
         'profile' => [
             'username_update_success' => 'Username updated successfully.',

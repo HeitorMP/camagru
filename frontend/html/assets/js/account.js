@@ -1,28 +1,3 @@
-
-// <form id="updateUsername">
-//     <label>Username:<br>
-//         <input type="text" id="username" required>
-//     </label>
-// </form>
-// <button id="updateUsernameButton">Update Username</button>
-// <form id="updateEmail">
-//     <label>Email:<br>
-//         <input type="email" id="email" required>
-//     </label>
-// </form>
-// <button id="updateEmailButton">Update Email</button>
-// <form id="updatePassword">
-//     <label>Password:<br>
-//         <input type="password" id="password" required>
-//     </label>
-//     <label>Confirm Password:<br>
-//         <input type="password" id="confirmPassword" required>
-//     </label>
-// </form>
-// <button id="updatePasswordButton">Update Password</button>
-
-// <div id="flashMessage" class="flash"></div>
-
 export function init() {
     const flash = document.getElementById('flashMessage');
 
@@ -39,6 +14,8 @@ export function init() {
                 },
                 body: JSON.stringify({ username })
             });
+
+            //raw response
 
             const data = await response.json();
 
@@ -57,16 +34,69 @@ export function init() {
         
     });
 
+    // update email
     document.getElementById('updateEmailButton').addEventListener('click', async function (e) {
         e.preventDefault();
         const email = document.getElementById('email').value.trim();
-        await updateAccountInfo('email', email);
+        
+        try {
+            const response = await fetch('/api/?page=update_email', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.status === 'success') {
+                flash.textContent = data.message || 'Email updated successfully.';
+                flash.style.color = 'green';
+            } else {
+                flash.textContent = data.message || 'Error updating email.';
+                flash.style.color = 'red';
+            }
+        } catch (error) {
+            console.error('Network error:', error);
+            flash.textContent = 'Network error. Please try again later.';
+            flash.style.color = 'red';
+        }
     });
 
+    // update password
     document.getElementById('updatePasswordButton').addEventListener('click', async function (e) {
         e.preventDefault();
+        const currentPassword = document.getElementById('currentPassword').value.trim();
         const password = document.getElementById('password').value.trim();
-        const confirm_password = document.getElementById('confirmPassword').value.trim();
-        await updateAccountInfo('password', { password, confirm_password });
+        const confirmPassword = document.getElementById('confirmPassword').value.trim();
+
+        
+        try {
+            const response = await fetch('/api/?page=update_password', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ currentPassword, password, confirmPassword })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.status === 'success') {
+                flash.textContent = data.message || 'Password updated successfully.';
+                flash.style.color = 'green';
+            } else {
+                flash.textContent = data.message || 'Error updating password.';
+                flash.style.color = 'red';
+            }
+        } catch (error) {
+            console.error('Network error:', error);
+            flash.textContent = 'Network error. Please try again later.';
+            flash.style.color = 'red';
+        }
     });
+    
 }

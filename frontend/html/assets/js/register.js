@@ -18,10 +18,7 @@ export function init() {
                 },
                 body: JSON.stringify({ username, email, password, confirm_password })
             });
-            // raw data
-            const rawData = await response.text();
-            console.log('Dados brutos:', rawData);
-
+     
             const data = await response.json();
             console.log('Resposta do servidor:', data);
 

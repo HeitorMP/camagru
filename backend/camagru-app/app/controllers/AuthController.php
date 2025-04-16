@@ -27,12 +27,12 @@ class AuthController {
 
             $user = new User();
             // Check if the username or email already exists
-            if ($user->checkUsernameExists($username)) {
-                response('error', null, message('auth.username_exists'));
+            if (!$user->checkUsernameAvailability($username)) {
+                response('error', null, message('auth.username_taken'));
                 return;
             }
-            if ($user->checkEmailExists($email)) {
-                response('error', null, message('auth.email_exists'));
+            if (!$user->checkUsernameAvailability($email)) {
+                response('error', null, message('auth.email_taken'));
                 return;
             }
             
@@ -142,6 +142,22 @@ class AuthController {
             unset($_SESSION['user_id']);
             session_destroy();
             response('success', '/login', message('auth.logout'));
+        }
+    }
+
+    public function checkAuth() {
+        header('Content-Type: application/json');
+
+        // Verifica se o ID do usuário está na sessão
+        if (isset($_SESSION['user_id'])) {
+            echo json_encode([
+                'authenticated' => true,
+                'user_id' => $_SESSION['user_id']
+            ]);
+        } else {
+            echo json_encode([
+                'authenticated' => false
+            ]);
         }
     }
 }
