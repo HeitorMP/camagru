@@ -31,7 +31,7 @@ class AuthController {
                 response('error', null, message('auth.username_taken'));
                 return;
             }
-            if (!$user->checkUsernameAvailability($email)) {
+            if (!$user->checkEmailAvailability($email)) {
                 response('error', null, message('auth.email_taken'));
                 return;
             }
@@ -64,12 +64,20 @@ class AuthController {
             }
 
             $user = new User();
+
+            // Check is verified
+
             if ($user->login($username, $password)) {
+                $id = $user->getIdByUsername($username);
+
+                if (!$user->getIsVerifyStatus($id)) {
+                    response('error', null, message('auth.not_verified'));
+                    return;
+                }
                 if (session_status() === PHP_SESSION_NONE) {
                     session_start();
                 }
                 $_SESSION['user_id'] = $user->getId();
-                $_SESSION['user_verified'] = $user->getVerified();
                 response('success', '/gallery', message('auth.login_success'));
             } else {
                 response('error', null, message('auth.login_failed'));
@@ -123,7 +131,13 @@ class AuthController {
 
             $user = new User();
 
-            if ($user->checkActivationCode($activation_code, $email)) {
+            if (!$user->checkActivationCode($activation_code, $email)) {
+                response('error', '/login', message('auth.activation_code_invalid'));
+                return;
+            }
+
+            $id = $user->getIdByEmail($email);
+            if ($user->activateUser($id, 1)) {
                 response('success', '/login', message('auth.activation_success'));
             } else {
                 response('error', '/login', message('auth.activation_failed'));
@@ -148,7 +162,6 @@ class AuthController {
     public function checkAuth() {
         header('Content-Type: application/json');
 
-        // Verifica se o ID do usuário está na sessão
         if (isset($_SESSION['user_id'])) {
             echo json_encode([
                 'authenticated' => true,

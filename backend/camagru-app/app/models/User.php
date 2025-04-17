@@ -127,6 +127,12 @@ class User extends DB {
         return false;
     }
 
+    public function getIdByUsername($username) {
+        $stmt = $this->pdo->prepare("SELECT id FROM users WHERE username = ?");
+        $stmt->execute([$username]);
+        return $stmt->fetchColumn();
+    }
+
     public function getIdByEmail($email) {
         $stmt = $this->pdo->prepare("SELECT id FROM users WHERE email = ?");
         $stmt->execute([$email]);
@@ -147,5 +153,11 @@ class User extends DB {
         $stmt = $this->pdo->prepare("SELECT * FROM users");
         $stmt->execute();
         return $stmt->fetchAll();
+    }
+
+    public function getIsVerifyStatus($id) {
+        $stmt = $this->pdo->prepare("SELECT is_verified FROM users WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetchColumn();
     }
 }

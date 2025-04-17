@@ -2,8 +2,7 @@ export async function init() {
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
     const email = params.get('email');
-    console.log('Código de ativação:', code);
-    console.log('Email:', email);
+
     if (code && email) {
         try {
             const url = '/api/?page=activate&code=' + code + '&email=' + email;
@@ -13,8 +12,6 @@ export async function init() {
             });
 
             const data = await response.json();
-            console.log('Resposta do servidor:', data);
-
             if (response.ok) {
                 window.location.href = data.redirect; 
             } else {

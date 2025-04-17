@@ -15,8 +15,6 @@ export function init() {
                 body: JSON.stringify({ username })
             });
 
-            //raw response
-
             const data = await response.json();
 
             if (response.ok && data.status === 'success') {
