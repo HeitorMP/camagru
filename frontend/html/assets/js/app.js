@@ -7,6 +7,8 @@ const routeModules = {
     '/update_username': () => import('./account.js'),
     '/update_email': () => import('./account.js'),
     '/update_password': () => import('./account.js'),
+    '/gallery': () => import('./gallery.js'),
+    '/reset_password': () => import('./reset_password.js'),
 };
 
 const routeHtml = {
@@ -19,6 +21,7 @@ const routeHtml = {
     '/update_username': '/pages/account.html',
     '/update_email': '/pages/account.html',
     '/update_password': '/pages/account.html',
+    '/reset_password': '/pages/reset_password.html',
 };
 
 // rotas que exigem autenticação

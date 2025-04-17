@@ -10,7 +10,7 @@ class AccountController {
 
     //Ajax update username
     public function updateUsername() {
-        
+
         header('Content-Type: application/json');
 
         requireAuth();
@@ -32,23 +32,28 @@ class AccountController {
             }
 
             $user = new User();
-            veriftUsernameAvailability($username);
+            $currentUsername = $user->getUsernameById($userId);
+            if ($username === $currentUsername) {
+                response('error', null, message('account.same_username'));
+                return;
+            }
+
             if (!$user->checkUsernameAvailability($username)) {
-                response('error', null, message('profile.username_already_exists'));
+                response('error', null, message('auth.username_taken'));
                 return;
             }
 
             if ($user->updateUsername($userId, $username)) {
-                response('success', null, message('profile.username_update_success'));
+                response('success', null, message('account.username_update_success'));
             } else {
-                response('error', null, message('profile.username_update_failed'));
+                response('error', null, message('account.username_update_failed'));
             }
         }
     }
 
     //Ajax update email
     public function updateEmail() {
-        
+
         header('Content-Type: application/json');
 
         requireAuth();
@@ -70,14 +75,20 @@ class AccountController {
             }
 
             $user = new User();
-            if (!user->checkEmailAvailability($email)) {
-                response('error', null, message('profile.email_already_exists'));
+            $currentEmail = $user->getEmailById($userId);
+            if ($email === $currentEmail) {
+                response('error', null, message('account.same_email'));
+                return;
+            }
+
+            if (!$user->checkEmailAvailability($email)) {
+                response('error', null, message('auth.email_taken'));
                 return;
             }
             if ($user->updateEmail($userId, $email)) {
-                response('success', null, message('profile.email_update_success'));
+                response('success', null, message('account.email_update_success'));
             } else {
-                response('error', null, message('profile.email_update_failed'));
+                response('error', null, message('account.email_update_failed'));
             }
         }
     }
@@ -102,6 +113,9 @@ class AccountController {
             }
 
             $errors = verifyPasswordInput($newPassword, $confirmPassword);
+            if (empty($currentPassword)) {
+                $errors[] = message('account.empty_current_password');
+            }
             if (!empty($errors)) {
                 response('error', null, $errors);
                 return;
@@ -109,13 +123,14 @@ class AccountController {
 
             $user = new User();
             if (!$user->verifyCurrentPassword($userId, $currentPassword)) {
-                response('error', null, message('profile.current_password_incorrect'));
+                response('error', null, message('account.current_password_incorrect'));
                 return;
             }
+            
             if ($user->updatePassword($userId, $newPassword)) {
-                response('success', null, message('profile.password_update_success'));
+                response('success', null, message('account.password_update_success'));
             } else {
-                response('error', null, message('profile.password_update_failed'));
+                response('error', null, message('account.password_update_failed'));
             }
         }
     }

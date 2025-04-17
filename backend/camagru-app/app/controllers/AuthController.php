@@ -93,7 +93,7 @@ class AuthController {
             $input = json_decode(file_get_contents("php://input"), true);
             $email = filter_var(trim($input['email'] ?? ''), FILTER_SANITIZE_EMAIL);
 
-            $errors = verifyLoginInput($email);
+            $errors = verifyEmailInput($email);
             if (!empty($errors)) {
                 response('error', null, $errors);
                 return;
@@ -101,18 +101,22 @@ class AuthController {
         
             $user = new User();
             // Check if the email exists
-            if ($user->checkEmailExists($email)) {
+            if ($user->checkEmailAvailability($email)) {
                 response('error', null, message('auth.email_not_found'));
                 return;
             }
             // Generate a password reset token
             // reset token must respect the regex
             $reset_token = generateRandomPassword();
-            $user->updatePassword($id, $reset_token);
-            // Send the password reset email
-            sendResetPassword($email, $reset_token);
-            response('success', '/login', message('auth.reset_password_success'));
-        }
+            $id = $user->getIdByEmail($email);
+            if ($user->updatePassword($id, $reset_token)) {
+                // Send the password reset email
+                sendResetPassword($email, $reset_token);
+                response('success', '/login', message('auth.reset_password_success'));
+            } else {
+                response('error', null, message('auth.reset_password_failed'));
+            }
+         }   
     }
 
     //ajax activation

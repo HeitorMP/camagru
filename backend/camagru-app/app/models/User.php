@@ -59,11 +59,23 @@ class User extends DB {
         $stmt->execute([$id]);
         return $stmt->fetch();
     }
-
+    
     public function getByUsername($username) {
         $stmt = $this->pdo->prepare("SELECT * FROM users WHERE username = ?");
         $stmt->execute([$username]);
         return $stmt->fetch();
+    }
+
+    public function getEmailById($id) {
+        $stmt = $this->pdo->prepare("SELECT email FROM users WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetchColumn();
+    }
+
+    public function getUsernameById($id) {
+        $stmt = $this->pdo->prepare("SELECT username FROM users WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetchColumn();
     }
 
     public function updateUsername($id, $username) {

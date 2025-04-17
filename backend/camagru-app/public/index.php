@@ -45,6 +45,9 @@ switch ($page) {
     case 'auth_check':
         $auth->checkAuth();
         break;
+    case 'reset_password':
+        $auth->resetPassword();
+        break;
     default:
         http_response_code(404);
         echo json_encode(['status' => 'error', 'message' => 'Route not found']);

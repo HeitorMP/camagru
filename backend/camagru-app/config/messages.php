@@ -30,15 +30,18 @@
             'empty_email' => 'Email cannot be empty.',
             'empty_password' => 'Password cannot be empty.',
             'empty_confirm_password' => 'Confirm password cannot be empty.',
-            'current_password_incorrect' => 'Current password is incorrect.',
         ],
-        'profile' => [
+        'account' => [
+            'same_username' => 'New username cannot be the same as the current one.',
+            'same_email' => 'New email cannot be the same as the current one.',
             'username_update_success' => 'Username updated successfully.',
             'username_update_failed' => 'Failed to update username.',
             'email_update_success' => 'Email updated successfully.',
             'email_update_failed' => 'Failed to update email.',
             'password_update_success' => 'Password updated successfully.',
             'password_update_failed' => 'Failed to update password.',
+            'empty_current_password' => 'Current password cannot be empty.',
+            'current_password_incorrect' => 'Current password is incorrect.',
         ],
         'gallery' => [
             'upload_success' => 'Image uploaded successfully.',
