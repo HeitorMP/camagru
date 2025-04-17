@@ -1,7 +1,10 @@
+import { insertNavBar } from './navbar.js';
+
 const routeModules = {
     '/register': () => import('./register.js'),
     '/login': () => import('./login.js'),
     '/activate': () => import('./activate.js'),
+    '/editor': () => import('./editor.js'),
     '/account': () => import('./account.js'),
     '/logout': () => import('./logout.js'),
     '/update_username': () => import('./account.js'),
@@ -15,6 +18,7 @@ const routeHtml = {
     '/register': '/pages/register.html',
     '/login': '/pages/login.html',
     '/gallery': '/pages/gallery.html',
+    '/editor': '/pages/editor.html',
     '/activate': '/pages/activate.html',
     '/account': '/pages/account.html',
     '/logout': '/pages/logout.html',
@@ -24,11 +28,10 @@ const routeHtml = {
     '/reset_password': '/pages/reset_password.html',
 };
 
-// rotas que exigem autenticação
-const privateRoutes = ['/account', '/logout', '/gallery'];
+// protected routes
+const privateRoutes = ['/account', '/logout', '/gallery', '/editor', '/update_username', '/update_email', '/update_password'];
 
 const path = window.location.pathname;
-
 async function checkAuth() {
     const res = await fetch('/api/?page=auth_check', {
         credentials: 'include'
@@ -39,12 +42,22 @@ async function checkAuth() {
 }
 
 async function loadPage(path) {
+    // Redireciona para /login se acessar "/"
+    if (path === '/') {
+        const isAuth = await checkAuth();
+
+        window.location.href = isAuth ? '/gallery' : '/login';
+    }
+
     if (privateRoutes.includes(path)) {
         const isAuth = await checkAuth();
         if (!isAuth) {
             window.location.href = '/login';
             return;
         }
+
+        const body = document.querySelector('body');
+        body.insertAdjacentHTML('afterbegin', insertNavBar());
     }
 
     if (routeHtml[path]) {
@@ -58,5 +71,4 @@ async function loadPage(path) {
     }
 }
 
-// dispara carregamento da página
 loadPage(path);

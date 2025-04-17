@@ -13,6 +13,8 @@ export function init() {
             flash.style.color = 'green';
         }
     }
+    // remove params from url
+    window.history.replaceState({}, document.title, window.location.pathname);
 
     document.getElementById('loginForm').addEventListener('submit', async function (e) {
         e.preventDefault();
@@ -34,7 +36,6 @@ export function init() {
     
             let data;
     
-            // Tenta fazer o parse do JSON mesmo se o status não for 2xx
             try {
                 data = await response.json();
             } catch (jsonError) {

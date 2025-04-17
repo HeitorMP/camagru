@@ -1,0 +1,45 @@
+
+    <!-- <h1>Camera</h1>
+    <video id="video">Video stream not available.</video>
+    <button id="start-button">Take photo</button>
+    <canvas id="canvas"></canvas>
+    <img id="photo" alt="The screen capture will appear in this box." /> -->
+
+    <section class="p-3 p-md-4 p-xl-5">
+        <div class="container">
+          <div class="card border-light-subtle shadow-sm p-3">
+            <div class="row g-4 align-items-start">
+              <!-- Left side: Camera -->
+              <div class="col-12 col-md-8">
+                <h3>Left</h3>
+                <div id="camera-wrapper" class="w-100 ratio ratio-4x3 position-relative">
+                  <video id="video" autoplay muted playsinline
+                    class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover" style="z-index: 1;"></video>
+                    <img src="/assets/media/preview/gb.png" id="overlay"
+                    style="position: absolute; top: 0; left: 0; z-index: 2; width: 100%; height: 100%; pointer-events: none; display: none;" />
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+                    <button id="start-button" class="btn btn-primary">Take photo</button>
+                  
+                    <select id="overlay-select" class="form-select w-auto">
+                        <option value="" selected>Filters: none</option>
+                        <option value="dog">Dog</option>
+                        <option value="gb">Game Boy</option>
+                      </select>
+                  </div>
+              </div>
+      
+              <!-- Right side: Captured image -->
+              <div class="col-12 col-md-4">
+                <h3>Right</h3>
+                <canvas id="canvas" style="display:none;"></canvas>
+                <img id="photo" class="img-fluid border" alt="The screen capture will appear here." />
+                <button id="save-button" class="btn btn-success mt-3">Save photo</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+  
+  

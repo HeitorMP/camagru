@@ -22,6 +22,14 @@ services:
       - db
     networks:
       - app-network
+    command: >
+      sh -c "
+        mkdir -p /var/www/html/public/uploads &&
+        chown -R www-data:www-data /var/www/html/public/uploads &&
+        chmod -R 755 /var/www/html/public/uploads &&
+        apache2-foreground
+      "
+
 
   maildev:
     image: maildev/maildev

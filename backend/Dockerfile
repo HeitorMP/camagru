@@ -22,6 +22,7 @@ COPY conf/msmtprc /etc/msmtprc
 RUN chmod 644 /etc/msmtprc
 RUN echo "sendmail_path = /usr/bin/msmtp -t" >> /usr/local/etc/php/conf.d/mail.ini
 
+
 # Substitui o php.ini
 COPY conf/php.ini /usr/local/etc/php/php.ini
 

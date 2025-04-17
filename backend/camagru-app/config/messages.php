@@ -43,7 +43,7 @@
             'empty_current_password' => 'Current password cannot be empty.',
             'current_password_incorrect' => 'Current password is incorrect.',
         ],
-        'gallery' => [
+        'image' => [
             'upload_success' => 'Image uploaded successfully.',
             'upload_failed' => 'Failed to upload image.',
         ]

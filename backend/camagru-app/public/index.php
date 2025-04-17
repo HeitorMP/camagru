@@ -13,9 +13,11 @@ define('BASE_PATH', dirname(__DIR__));
 require BASE_PATH . '/config/database.php';
 require BASE_PATH . '/app/controllers/AuthController.php';
 require BASE_PATH . '/app/controllers/AccountController.php';
+require BASE_PATH . '/app/controllers/EditorController.php';
 
 $auth = new AuthController();
 $account = new AccountController();
+$editor = new ImageController();
 
 // Routes
 $page = $_GET['page'] ?? 'login';
@@ -47,6 +49,12 @@ switch ($page) {
         break;
     case 'reset_password':
         $auth->resetPassword();
+        break;
+    case 'upload_photo':
+        $editor->uploadImage();
+        break;
+    case 'get_gallery':
+        $editor->getGallery();
         break;
     default:
         http_response_code(404);
