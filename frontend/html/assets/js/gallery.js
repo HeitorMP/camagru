@@ -1,6 +1,5 @@
 export async function init() {
 
-    alert('init gallery.js');
     try {
       const response = await fetch('/api/?page=get_gallery', {
         credentials: 'include'
@@ -10,11 +9,11 @@ export async function init() {
 
       console.log('Resposta do servidor:', data);
   
-      if (data.status === 'success' && data.message.length > 0) {
+      if (data.status === 'success' && data.photos.length > 0) {
         const container = document.querySelector('#nature .grid-container');
         container.innerHTML = ''; // limpa os mocks
   
-        data.message.forEach(image => {
+        data.photos.forEach(image => {
           const item = document.createElement('div');
           item.classList.add('grid-item');
           let path = 'api/' + image.image_path;;

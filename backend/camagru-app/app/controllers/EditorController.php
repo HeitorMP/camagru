@@ -10,14 +10,12 @@ class ImageController {
         requireAuth();
 
         if ($_SERVER['REQUEST_METHOD'] != 'POST') {
-            echo json_encode(['status' => 'error', null,'message' => 'Invalid request method.']);
-            exit;
+            response('error', null, message('image.upload_failed'));
         }
         $userId = $_SESSION['user_id'];
 
         if (!$userId || !isset($_FILES['photo'])) {
-            echo json_encode(['status' => 'error', 'message' => 'Unauthorized or no photo uploaded.']);
-            exit;
+            response('error', null, message('image.upload_failed'));
         }
         
         $uploadDir = BASE_PATH . '/public/uploads/';
@@ -45,7 +43,7 @@ class ImageController {
         $images = new Images();
         $gallery = $images->getUserGallery($userId);
     
-        response('success', null, $gallery);
+        echo json_encode(['status' => 'success', 'photos' => $gallery]); 
     }
     
 }
