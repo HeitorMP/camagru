@@ -56,6 +56,9 @@ switch ($page) {
     case 'get_gallery':
         $editor->getGallery();
         break;
+    case 'delete_photo':
+        $editor->deleteImage();
+        break;
     default:
         http_response_code(404);
         echo json_encode(['status' => 'error', 'message' => 'Route not found']);

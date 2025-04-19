@@ -9,8 +9,6 @@ export function init() {
   let uploadCanvas = null;
   let startButton = null;
 
-
-
   function showViewLiveResultButton() {
     if (window.self !== window.top) {
       document.querySelector(".content-area").remove();
@@ -32,8 +30,10 @@ export function init() {
     const overlay = document.getElementById("overlay");
     startButton = document.getElementById("start-button");
 
+
     video = document.getElementById("video");
     uploadCanvas = document.getElementById("upload-canvas");
+
 
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: false })
@@ -68,9 +68,15 @@ export function init() {
         overlay.style.display = "none";
         startButton.disabled = true;
       } else {
-        overlay.src = `/assets/media/preview/${selected}.png`;
-        overlay.style.display = "block";
-        startButton.disabled = false;
+        if (selected === "totoro") {
+          overlay.src = `/assets/media/preview/${selected}.gif`;
+          overlay.style.display = "block";
+          startButton.disabled = false;
+        } else {
+          overlay.src = `/assets/media/preview/${selected}.png`;
+          overlay.style.display = "block";
+          startButton.disabled = false;
+        }
       }
     });
 
@@ -82,6 +88,7 @@ export function init() {
       }
       await takeAndUploadPhoto();
     });
+
   }
 
   async function takeAndUploadPhoto() {
@@ -125,53 +132,59 @@ export function init() {
     }, 'image/png');
   }
 
+
   async function loadGallery() {
     try {
       const response = await fetch('/api/?page=get_gallery', {
         credentials: 'include'
       });
-
+  
       const data = await response.json();
       const gallery = document.getElementById("gallery");
       gallery.innerHTML = "";
-
-      console.log('Resposta do servidor:', data);
-      console.log('data:', data.photos);
-
+  
       data.photos.forEach((photo) => {
         const card = document.createElement("div");
         card.className = "card shadow-sm p-2";
         const fullPath = `/api/${photo.image_path}`;
-
+        const filename = photo.image_path.split("/").pop();
+  
         card.innerHTML = `
           <img src="${fullPath}" class="card-img-top mb-2" alt="User photo" />
-          <button class="btn btn-sm btn-danger">Delete</button>
+          <button id="${filename}" class="btn btn-sm btn-danger">Delete</button>
         `;
+  
+        // Adiciona o botão ao DOM
+        gallery.appendChild(card);
+  
+        // Adiciona o event listener ao botão delete recém-criado
+        const deleteButton = card.querySelector(".btn-danger");
+        deleteButton.addEventListener("click", async (e) => {
+          e.preventDefault();
+          try {
+            const response = await fetch(`/api/?page=delete_photo&image_name=${filename}`, {
+              method: 'DELETE',
+              credentials: 'include'
+            });
 
-        const deleteButton = card.querySelector("button");
-        deleteButton.addEventListener("click", async () => {
-          if (!confirm("Are you sure you want to delete this photo?")) return;
-
-          const res = await fetch(`/api/?page=delete_photo&filename=${encodeURIComponent(photo.filename)}`, {
-            method: "DELETE",
-            credentials: "include"
-          });
-
-          const result = await res.json();
-
-          if (result.status === "success") {
-            await loadGallery();
-          } else {
-            alert(result.message || "Failed to delete photo.");
+            const data = await response.json();
+  
+            if (response.ok && data.status === 'success') {
+              await loadGallery(); // recarrega a galeria
+            } else {
+              alert(data.message || 'Erro ao excluir a foto.');
+            }
+          } catch (error) {
+            console.error('Erro ao excluir a foto:', error);
+            alert('Erro ao excluir a foto. Tente novamente mais tarde.');
           }
         });
-
-        gallery.appendChild(card);
       });
     } catch (error) {
       console.error("Erro ao carregar a galeria:", error);
     }
   }
+  
 
   window.addEventListener("load", startup, false);
   startup();

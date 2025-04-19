@@ -46,5 +46,7 @@
         'image' => [
             'upload_success' => 'Image uploaded successfully.',
             'upload_failed' => 'Failed to upload image.',
+            'delete_success' => 'Image deleted successfully.',
+            'delete_failed' => 'Failed to delete image.',
         ]
     ];

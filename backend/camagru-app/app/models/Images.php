@@ -24,4 +24,27 @@ class Images extends DB {
         }
         return true;
     }
+
+    public function getImageIdbyName($userId, $imageName) {
+        $imageName = 'gallery/' . $userId . "/" . $imageName;
+        $stmt = $this->pdo->prepare("SELECT id FROM images WHERE image_path = ?");
+        $stmt->execute([$imageName]);
+        return $stmt->fetchColumn();
+    }
+
+    public function deleteImage($imageId) {
+        $stmt = $this->pdo->prepare("DELETE FROM images WHERE id = ?");
+        try {
+            $stmt->execute([$imageId]);
+        } catch (PDOException $e) {
+            return false;
+        }
+        return true;
+    }
+
+    public function isImageOwner($userId, $imageId) {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM images WHERE id = ? AND user_id = ?");
+        $stmt->execute([$imageId, $userId]);
+        return $stmt->fetchColumn() > 0;
+    }
 }

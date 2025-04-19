@@ -13,9 +13,12 @@ RUN apt-get update && apt-get install -y \
     unzip \
     curl \
     git
+    
+    
 
 # Habilita módulos PHP necessários
-RUN docker-php-ext-install pdo pdo_mysql mysqli
+RUN docker-php-ext-install pdo pdo_mysql mysqli gd
+
 
 # Configura sendmail com msmtp
 COPY conf/msmtprc /etc/msmtprc

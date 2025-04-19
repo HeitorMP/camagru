@@ -17,6 +17,7 @@ export async function init() {
           const item = document.createElement('div');
           item.classList.add('grid-item');
           let path = 'api/' + image.image_path;;
+          console.log('Caminho da imagem:', path);
           item.innerHTML = `
             <img src="${path}" alt="Uploaded image">
             <div class="image-overlay">
