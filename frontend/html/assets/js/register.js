@@ -24,6 +24,8 @@ export function init() {
 
             const flash = document.getElementById('flashMessage');
             if (response.ok && data.status === 'success') {
+                localStorage.setItem('flashMessage', data.message);
+                localStorage.setItem('flashStatus', 'success');
                 window.location.href = data.redirect;
             } else {
                 flash.textContent = data.message || 'Erro';

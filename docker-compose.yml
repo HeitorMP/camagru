@@ -24,14 +24,14 @@ services:
       - app-network
     command: >
       sh -c "
-        mkdir -p /var/www/html/public/uploads &&
-        chown -R www-data:www-data /var/www/html/public/uploads &&
-        chmod -R 755 /var/www/html/public/uploads &&
         mkdir -p /var/www/html/public/gallery &&
         chown -R www-data:www-data /var/www/html/public/gallery &&
         chmod -R 755 /var/www/html/public/gallery &&
         apache2-foreground
       "
+    secrets:
+      - db_password
+      - db_root_password
 
 
   maildev:
@@ -46,6 +46,9 @@ services:
     image: mysql:8
     container_name: camagru_db
     restart: always
+    environment:
+       MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+       MYSQL_PASSWORD_FILE: /run/secrets/db_password
     env_file:
       - .env
     volumes:
@@ -53,6 +56,9 @@ services:
       - ./db:/docker-entrypoint-initdb.d
     networks:
       - app-network
+    secrets:
+      - db_password
+      - db_root_password
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -67,6 +73,12 @@ services:
       - db
     networks:
       - app-network
+
+secrets:
+   db_password:
+     file: db_password.txt
+   db_root_password:
+     file: db_root_password.txt
 
 networks:
   app-network:

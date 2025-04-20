@@ -29,7 +29,7 @@ class AuthController {
             // Check if the username or email already exists
             if (!$user->checkUsernameAvailability($username)) {
                 response('error', null, message('auth.username_taken'));
-                return;
+
             }
             if (!$user->checkEmailAvailability($email)) {
                 response('error', null, message('auth.email_taken'));
@@ -49,7 +49,6 @@ class AuthController {
 
     //ajax login
     public function login() {
-        // header('Content-Type: application/json');
         header('Content-Type: application/json');
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -66,19 +65,26 @@ class AuthController {
             $user = new User();
 
             // Check is verified
-
+            
             if ($user->login($username, $password)) {
                 $id = $user->getIdByUsername($username);
-
+                
                 if (!$user->getIsVerifyStatus($id)) {
                     response('error', null, message('auth.not_verified'));
                     return;
                 }
-                if (session_status() === PHP_SESSION_NONE) {
-                    session_start();
-                }
-                $_SESSION['user_id'] = $user->getId();
-                response('success', '/gallery', message('auth.login_success'));
+                ini_set('session.cookie_samesite', 'Lax');
+                ini_set('session.cookie_secure', '0');
+                session_start();
+
+                $_SESSION['user_id'] = $id;
+
+                // if (session_status() === PHP_SESSION_NONE) {
+                //     ini_set('session.cookie_samesite', 'Lax');
+                //     session_start();
+                // }
+                // $_SESSION['user_id'] = $id;
+                response('success', '/gallery', null);
             } else {
                 response('error', null, message('auth.login_failed'));
             }
@@ -122,10 +128,11 @@ class AuthController {
     //ajax activation
     public function activate() {
         header('Content-Type: application/json');
-    
+        
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $activation_code = trim($_GET['code'] ?? '');
-            $email = filter_var(trim($_GET['email'] ?? ''), FILTER_SANITIZE_EMAIL);
+            $input = json_decode(file_get_contents("php://input"), true);
+            $activation_code = trim($input['code'] ?? '');
+            $email = filter_var(trim($input['email'] ?? ''), FILTER_SANITIZE_EMAIL);
     
             $errors = verifyActivationInput($activation_code, $email);
             if (!empty($errors)) {
@@ -165,16 +172,14 @@ class AuthController {
 
     public function checkAuth() {
         header('Content-Type: application/json');
+        ini_set('session.cookie_samesite', 'Lax');
+        ini_set('session.cookie_secure', '0'); // só se NÃO usar https
+        session_start();
 
-        if (isset($_SESSION['user_id'])) {
-            echo json_encode([
-                'authenticated' => true,
-                'user_id' => $_SESSION['user_id']
-            ]);
-        } else {
-            echo json_encode([
-                'authenticated' => false
-            ]);
-        }
+        
+        echo json_encode([
+          'authenticated' => isset($_SESSION['user_id']),
+          'user_id' => $_SESSION['user_id'] ?? null,
+        ]);
     }
 }

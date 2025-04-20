@@ -4,6 +4,7 @@
             'generic_error' => 'An error occurred. Please try again.',
             'not_logged_in' => 'You must be logged in to access this page.',
             'login_failed' => 'Invalid email or password.',
+            'login_success' => 'Login successful.',
             'register_success' => 'User registered successfully.',
             'register_failed' => 'An error occurred while registering.',
             'password_mismatch' => 'Passwords do not match.',
@@ -30,6 +31,7 @@
             'empty_email' => 'Email cannot be empty.',
             'empty_password' => 'Password cannot be empty.',
             'empty_confirm_password' => 'Confirm password cannot be empty.',
+
         ],
         'account' => [
             'same_username' => 'New username cannot be the same as the current one.',

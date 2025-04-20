@@ -8,6 +8,7 @@ header("Access-Control-Allow-Origin: http://localhost:8080");
 header("Access-Control-Allow-Credentials: true");
 header("Content-Type: application/json");
 
+
 define('BASE_PATH', dirname(__DIR__));
 
 require BASE_PATH . '/config/database.php';

@@ -1,7 +1,7 @@
 export function init() {
     const params = new URLSearchParams(window.location.search);
-    const msg = params.get('message');
-    const status = params.get('status');
+    const msg = localStorage.getItem('flashMessage') || params.get('msg');
+    const status = localStorage.getItem('flashStatus') || params.get('status');
 
     if (msg && status) {
         const flash = document.getElementById('flashMessage');
@@ -13,6 +13,9 @@ export function init() {
             flash.style.color = 'green';
         }
     }
+    // Clear flash message from local storage
+    localStorage.removeItem('flashMessage');
+    localStorage.removeItem('flashStatus');
     // remove params from url
     window.history.replaceState({}, document.title, window.location.pathname);
 
@@ -33,19 +36,13 @@ export function init() {
                 },
                 body: JSON.stringify({ username, password })
             });
-    
-            let data;
-    
-            try {
-                data = await response.json();
-            } catch (jsonError) {
-                data = { message: 'Resposta inválida do servidor.' };
-            }
-    
-            if (response.ok && data.status === 'success') {
+
+            const data = await response.json();
+
+            if (response.ok && data.status === 'success') {              
                 window.location.href = data.redirect;
             } else {
-                flash.textContent = data.message || 'Usuário ou senha inválidos.';
+                flash.textContent = data.message || 'Invalid username or password.';
                 flash.style.color = 'red';
             }
     

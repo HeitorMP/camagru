@@ -68,22 +68,28 @@ class ImageController {
         if ($_SERVER['REQUEST_METHOD'] != 'DELETE') {
             response('error', null, message('image.delete_failed'));    
         }
-        //get image name from query string
-        $imageName = $_GET['image_name'] ?? null;
+        //get image name from body input
+        $input = json_decode(file_get_contents("php://input"), true);
+        $imageName = $input['filename'] ?? null;
         $userId = $_SESSION['user_id'];
 
         if (!$userId || !$imageName) {
             response('error', null, message('image.delete_failed'));
         }
 
+        
         $images = new Images();
 
         $imageId = $images->getImageIdbyName($userId, $imageName);
+        $imagePath = BASE_PATH . '/public/gallery/' . $userId . '/' . $imageName;
 
 
-        // if ($images->isImageOwner($userId, $imageId) == false) {
-        //     response('error', null, message('image.delete_failed'));
-        // }
+        //delete the real file of image
+        if (file_exists($imagePath)) {
+            unlink($imagePath);
+        } else {
+            response('error', null, message('image.delete_failed'));
+        }
     
         if ($images->deleteImage($imageId)) {
             response('success', null, message('image.delete_success'));

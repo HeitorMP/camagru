@@ -12,6 +12,7 @@ const routeModules = {
     '/update_password': () => import('./account.js'),
     '/gallery': () => import('./gallery.js'),
     '/reset_password': () => import('./reset_password.js'),
+    '/nova': () => import('./nova.js'),
 };
 
 const routeHtml = {
@@ -26,6 +27,7 @@ const routeHtml = {
     '/update_email': '/pages/account.html',
     '/update_password': '/pages/account.html',
     '/reset_password': '/pages/reset_password.html',
+    '/nova': '/pages/nova.html',
 };
 
 // protected routes
@@ -42,15 +44,12 @@ async function checkAuth() {
 }
 
 async function loadPage(path) {
-    // Redireciona para /login se acessar "/"
+    const isAuth = await checkAuth();
     if (path === '/') {
-        const isAuth = await checkAuth();
-
         window.location.href = isAuth ? '/gallery' : '/login';
     }
 
     if (privateRoutes.includes(path)) {
-        const isAuth = await checkAuth();
         if (!isAuth) {
             window.location.href = '/login';
             return;

@@ -162,11 +162,11 @@ export function init() {
         deleteButton.addEventListener("click", async (e) => {
           e.preventDefault();
           try {
-            const response = await fetch(`/api/?page=delete_photo&image_name=${filename}`, {
+            const response = await fetch(`/api/?page=delete_photo`, {
               method: 'DELETE',
-              credentials: 'include'
+              credentials: 'include',
+              body: JSON.stringify({ filename: filename }),
             });
-
             const data = await response.json();
   
             if (response.ok && data.status === 'success') {
