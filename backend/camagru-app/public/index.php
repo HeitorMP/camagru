@@ -15,10 +15,12 @@ require BASE_PATH . '/config/database.php';
 require BASE_PATH . '/app/controllers/AuthController.php';
 require BASE_PATH . '/app/controllers/AccountController.php';
 require BASE_PATH . '/app/controllers/EditorController.php';
+require BASE_PATH . '/app/controllers/GalleryController.php';
 
 $auth = new AuthController();
 $account = new AccountController();
 $editor = new ImageController();
+$gallery = new GalleryController();
 
 // Routes
 $page = $_GET['page'] ?? 'login';
@@ -56,6 +58,9 @@ switch ($page) {
         break;
     case 'get_gallery':
         $editor->getGallery();
+        break;
+    case 'get_gallery_by_username':
+        $gallery->getGalleryByUsername();
         break;
     case 'delete_photo':
         $editor->deleteImage();

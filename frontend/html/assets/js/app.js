@@ -1,4 +1,4 @@
-import { insertNavBar } from './navbar.js';
+import { insertNavBar, insertNavBarGallery } from './navbar.js';
 
 const routeModules = {
     '/register': () => import('./register.js'),
@@ -30,6 +30,7 @@ const routeHtml = {
     '/nova': '/pages/nova.html',
 };
 
+
 // protected routes
 const privateRoutes = ['/account', '/logout', '/gallery', '/editor', '/update_username', '/update_email', '/update_password'];
 
@@ -56,7 +57,12 @@ async function loadPage(path) {
         }
 
         const body = document.querySelector('body');
-        body.insertAdjacentHTML('afterbegin', insertNavBar());
+        if (path === '/gallery') {
+            body.insertAdjacentHTML('afterbegin', insertNavBarGallery());
+        }
+        else {
+            body.insertAdjacentHTML('afterbegin', insertNavBar());
+        }
     }
 
     if (routeHtml[path]) {

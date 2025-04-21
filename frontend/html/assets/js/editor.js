@@ -4,51 +4,95 @@ export function init() {
   const width = 320;
   let height = 0;
   let streaming = false;
+  let mode = 'camera'; // 'camera' or 'upload'
+  let selectedFile = null;
 
   let video = null;
   let uploadCanvas = null;
   let startButton = null;
+  let stream = null;
 
-  function showViewLiveResultButton() {
-    if (window.self !== window.top) {
-      document.querySelector(".content-area").remove();
-      const button = document.createElement("button");
-      button.textContent = "Open example in new window";
-      document.body.append(button);
-      button.addEventListener("click", () =>
-        window.open(location.href, "MDN", "width=850,height=700,left=150,top=150")
-      );
-      return true;
-    }
-    return false;
+  function getOverlays() {
+    const overlays = [
+      '42-black',
+      '42-piscine',
+      'dog',
+      'gb',
+    ];
+    return overlays;
   }
 
   function startup() {
-    if (showViewLiveResultButton()) return;
-
     const overlaySelect = document.getElementById("overlay-select");
     const overlay = document.getElementById("overlay");
     startButton = document.getElementById("start-button");
+    const fileInput = document.getElementById("file-input");
+    const cameraModeButton = document.getElementById("camera-mode");
+    const uploadModeButton = document.getElementById("upload-mode");
 
+    const overlayOptions = getOverlays();
+    overlayOptions.forEach((overlay) => {
+      const option = document.createElement("option");
+      option.value = overlay;
+      option.textContent = overlay;
+      overlaySelect.appendChild(option);
+    });
 
     video = document.getElementById("video");
     uploadCanvas = document.getElementById("upload-canvas");
 
+    function switchToCameraMode() {
+      mode = 'camera';
+      cameraModeButton.classList.add('active');
+      uploadModeButton.classList.remove('active');
+      video.style.display = 'block';
+      selectedFile = null;
+      startButton.textContent = 'Take Photo';
+      startButton.disabled = overlaySelect.value === '';
+      initializeCamera();
+      clearCanvas();
+    }
 
-    navigator.mediaDevices
-      .getUserMedia({ video: true, audio: false })
-      .then((stream) => {
-        video.srcObject = stream;
-        video.play();
-      })
-      .catch((err) => {
-        console.error(`An error occurred: ${err}`);
-      });
+    function switchToUploadMode() {
+      mode = 'upload';
+      uploadModeButton.classList.add('active');
+      cameraModeButton.classList.remove('active');
+      video.style.display = 'none';
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+      }
+      startButton.textContent = 'Upload Photo';
+      startButton.disabled = true;
+      fileInput.click();
+      clearCanvas();
+    }
+
+    function clearCanvas() {
+      const context = uploadCanvas.getContext("2d");
+      context.clearRect(0, 0, uploadCanvas.width, uploadCanvas.height);
+    }
+
+    function initializeCamera() {
+      navigator.mediaDevices
+        .getUserMedia({ video: true, audio: false })
+        .then((mediaStream) => {
+          stream = mediaStream;
+          video.srcObject = stream;
+          video.play();
+        })
+        .catch((err) => {
+          console.error(`An error occurred: ${err}`);
+        });
+    }
+
+    cameraModeButton.addEventListener('click', switchToCameraMode);
+    uploadModeButton.addEventListener('click', switchToUploadMode);
 
     video.addEventListener(
       "canplay",
       () => {
-        if (!streaming) {
+        if (!streaming && mode === 'camera') {
           height = video.videoHeight / (video.videoWidth / width);
           if (isNaN(height)) height = width / (4 / 3);
 
@@ -62,21 +106,35 @@ export function init() {
       false
     );
 
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        selectedFile = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => {
+            height = img.height / (img.width / width);
+            uploadCanvas.setAttribute("width", width);
+            uploadCanvas.setAttribute("height", height);
+            const context = uploadCanvas.getContext("2d");
+            context.drawImage(img, 0, 0, width, height);
+            startButton.disabled = overlaySelect.value === '';
+          };
+          img.src = event.target.result;
+        };
+        reader.readAsDataURL(selectedFile);
+      }
+    });
+
     overlaySelect.addEventListener("change", () => {
       const selected = overlaySelect.value;
       if (selected === "") {
         overlay.style.display = "none";
         startButton.disabled = true;
       } else {
-        if (selected === "totoro") {
-          overlay.src = `/assets/media/preview/${selected}.gif`;
-          overlay.style.display = "block";
-          startButton.disabled = false;
-        } else {
-          overlay.src = `/assets/media/preview/${selected}.png`;
-          overlay.style.display = "block";
-          startButton.disabled = false;
-        }
+        overlay.src = `/assets/media/preview/${selected}.png`;
+        overlay.style.display = "block";
+        startButton.disabled = mode === 'upload' && !selectedFile;
       }
     });
 
@@ -88,7 +146,6 @@ export function init() {
       }
       await takeAndUploadPhoto();
     });
-
   }
 
   async function takeAndUploadPhoto() {
@@ -99,7 +156,22 @@ export function init() {
 
     uploadCanvas.width = width;
     uploadCanvas.height = height;
-    context.drawImage(video, 0, 0, width, height);
+
+    if (mode === 'camera') {
+      context.drawImage(video, 0, 0, width, height);
+    } else if (mode === 'upload' && selectedFile) {
+      const img = new Image();
+      img.src = URL.createObjectURL(selectedFile);
+      await new Promise((resolve) => {
+        img.onload = () => {
+          context.drawImage(img, 0, 0, width, height);
+          resolve();
+        };
+      });
+    } else {
+      alert("No file selected.");
+      return;
+    }
 
     uploadCanvas.toBlob(async (blob) => {
       if (!blob) {
@@ -132,32 +204,31 @@ export function init() {
     }, 'image/png');
   }
 
-
   async function loadGallery() {
     try {
       const response = await fetch('/api/?page=get_gallery', {
         credentials: 'include'
       });
-  
+
       const data = await response.json();
-      const gallery = document.getElementById("gallery");
+      const gallery = document.getElementById("gallery-editor");
       gallery.innerHTML = "";
-  
+
       data.photos.forEach((photo) => {
         const card = document.createElement("div");
         card.className = "card shadow-sm p-2";
         const fullPath = `/api/${photo.image_path}`;
         const filename = photo.image_path.split("/").pop();
-  
+
         card.innerHTML = `
-          <img src="${fullPath}" class="card-img-top mb-2" alt="User photo" />
-          <button id="${filename}" class="btn btn-sm btn-danger">Delete</button>
+          <div class="d-flex flex-column align-items-center">
+            <img src="${fullPath}" class="card-img-top mb-2" style="max-width: 100%; width: 250px; border-radius: 8px;" alt="User photo" />
+            <button id="${filename}" class="btn btn-sm btn-danger mt-2">Delete</button>
+          </div>
         `;
-  
-        // Adiciona o botão ao DOM
+
         gallery.appendChild(card);
-  
-        // Adiciona o event listener ao botão delete recém-criado
+
         const deleteButton = card.querySelector(".btn-danger");
         deleteButton.addEventListener("click", async (e) => {
           e.preventDefault();
@@ -168,9 +239,9 @@ export function init() {
               body: JSON.stringify({ filename: filename }),
             });
             const data = await response.json();
-  
+
             if (response.ok && data.status === 'success') {
-              await loadGallery(); // recarrega a galeria
+              await loadGallery();
             } else {
               alert(data.message || 'Erro ao excluir a foto.');
             }
@@ -184,7 +255,6 @@ export function init() {
       console.error("Erro ao carregar a galeria:", error);
     }
   }
-  
 
   window.addEventListener("load", startup, false);
   startup();

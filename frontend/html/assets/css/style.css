@@ -35,8 +35,10 @@
 
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 1.5rem;
+  padding-left: 120px;
+  padding-right: 120px;
 }
 
 .grid-item {
@@ -93,4 +95,98 @@ video {
   width: 500px;
   height: 400px;
   object-fit: cover;
+}
+
+right-column {
+  height: 100%;
+  overflow-y: auto;
+}
+
+#gallery-editor {
+  max-height: 600px;
+  overflow-y: auto;
+  padding-right: 10px;
+  scroll-behavior: smooth;
+}
+
+#gallery-editor::-webkit-scrollbar {
+  width: 6px;
+}
+
+#gallery-editor::-webkit-scrollbar-thumb {
+  background-color: #aaa;
+  border-radius: 10px;
+}
+
+.pagination {
+  text-align: center;
+  margin-top: 2rem;
+    /* center */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pagination a {
+  color: #007BFF;
+  padding: 8px 16px;
+  text-decoration: none;
+  border: 1px solid #007BFF;
+  margin: 0 5px;
+  border-radius: 4px;
+
+
+}
+
+.pagination a:hover {
+  background-color: #007BFF;
+  color: white;
+}
+
+.pagination .active {
+  background-color: #007BFF;
+  color: white;
+}
+
+h3 {
+  margin-top: 10px;
+  font-size: 18px;
+  text-transform: capitalize;
+}
+
+h1 {
+  text-align: center;
+  margin: 2rem;
+}
+
+p {
+  font-size: 14px;
+}
+
+.page-numbers {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.page-numbers a {
+  display: inline-block;
+  color: #007BFF;
+  padding: 8px 14px;
+  text-decoration: none;
+  border: 1px solid #007BFF;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.page-numbers a:hover {
+  background-color: #007BFF;
+  color: white;
+}
+
+.page-numbers a.active {
+  background-color: #007BFF;
+  color: white;
 }
