@@ -43,9 +43,17 @@ class ImageController {
             exit;
         }
 
+        $user = new User();
+        $ownerName = $user->getUsernameById($userId);
+        if (!$ownerName) {
+            response('error', null, message('image.upload_failed'));
+            exit;
+        }
+
+
         $imagePath = 'gallery/' . $userId . "/" . $filename;
         $images = new Images();
-        if ($images->addImage($userId, $imagePath)) {
+        if ($images->addImage($userId, $ownerName, $imagePath)) {
             response('success', '/gallery', message('image.upload_success'));
         } else {
             response('error', null, message('image.upload_failed'));
@@ -68,7 +76,7 @@ class ImageController {
         if ($_SERVER['REQUEST_METHOD'] != 'DELETE') {
             response('error', null, message('image.delete_failed'));    
         }
-        //get image name from body input
+
         $input = json_decode(file_get_contents("php://input"), true);
         $imageName = $input['filename'] ?? null;
         $userId = $_SESSION['user_id'];
@@ -99,15 +107,14 @@ class ImageController {
     }
 
     public function getImage() {
-        requireAuth();
 
         if ($_SERVER['REQUEST_METHOD'] != 'GET') {
             response('error', null, message('image.get_failed'));
         }
-        $userId = $_SESSION['user_id'];
+
         $imageId = $_GET['id'] ?? null;
 
-        if (!$userId || !$imageId) {
+        if (!$imageId) {
             response('error', null, message('image.get_failed'));
         }
 

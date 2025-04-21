@@ -61,7 +61,8 @@ $allowedRoutes = [
     'register', 'login', 'activate', 'update_username', 'update_email',
     'update_password', 'logout', 'auth_check', 'reset_password',
     'upload_photo', 'get_gallery', 'get_gallery_by_username', 'delete_photo',
-    'get_public_profile', 'get_image', 'like_image', 'get_like_count', 'dislike_image'
+    'get_public_profile', 'get_image', 'like_image', 'get_like_count', 'dislike_image',
+    'get_comments', 'add_comment', 'delete_comment'
 ];
 $page = filter_input(INPUT_GET, 'page', FILTER_SANITIZE_STRING) ?? 'login';
 if (!in_array($page, $allowedRoutes)) {
@@ -149,6 +150,15 @@ switch ($page) {
         break;
     case 'get_like_count':
         $gallery->getLikesCount();
+        break;
+    case 'get_comments':
+        $gallery->getComments();
+        break;
+    case 'add_comment':
+        $gallery->addComment();
+        break;
+    case 'delete_comment':
+        $gallery->deleteComment();
         break;
     default:
         http_response_code(404);

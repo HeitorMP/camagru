@@ -7,9 +7,10 @@ async function fetchCsrfToken() {
       });
       const data = await response.json();
       csrfToken = data.csrf_token;
-      console.log('CSRF Token obtido:', csrfToken);
   } catch (error) {
-      alert('Erro ao obter CSRF Token:', error);
+      const flash = document.getElementById('flashMessage');
+      flash.textContent = 'Csrf token invalid. Try again';
+      flash.style.color = 'red';
   }
 }
 
@@ -136,13 +137,9 @@ export async function init() {
     pageCards.forEach(async (image) => {
       let likesCount = 0;
       try {
-        const response = await fetch(`/api/?page=get_like_count`, {
-          method: 'POST',
+        const response = await fetch(`/api/?page=get_like_count&image_id=${image.id}`, {
+          method: 'GET',
           credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ image_id: image.id, csrf_token: csrfToken }),
         });
         const data = await response.json();
 
@@ -157,7 +154,7 @@ export async function init() {
       const item = document.createElement('div');
       item.classList.add('grid-item', 'card');
       const path = 'api/' + image.image_path;
-      const imageUrl = `/image?id=${image.id}`; // ou `image_id`, como quiser
+      const imageUrl = `/image?id=${image.id}`;
     
       item.innerHTML = `
       <img src="${path}" alt="Uploaded image">

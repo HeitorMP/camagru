@@ -15,14 +15,20 @@ class Images extends DB {
         $stmt->execute([$imageId]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-    public function addImage($userId, $imagePath) {
-        $stmt = $this->pdo->prepare("INSERT INTO images (user_id, image_path) VALUES (?, ?)");
+    public function addImage($userId, $username ,$imagePath) {
+        $stmt = $this->pdo->prepare("INSERT INTO images (user_id, owner_name, image_path) VALUES (?, ?, ?)");
         try {
-            $stmt->execute([$userId, $imagePath]);
+            $stmt->execute([$userId, $username, $imagePath]);
         } catch (PDOException $e) {
             return false;
         }
         return true;
+    }
+
+    public function getAllImagesSortedByDate() {
+        $stmt = $this->pdo->prepare("SELECT * FROM images ORDER BY created_at DESC");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getImageIdbyName($userId, $imageName) {

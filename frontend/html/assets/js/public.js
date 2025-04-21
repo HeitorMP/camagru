@@ -37,10 +37,10 @@ export async function init() {
   }
 
 
-  async function fetchSearch(username) {
+  async function fetchAllImages() {
     
     try {
-        const response = await fetch(`/api/?page=get_public_profile&username=${encodeURIComponent(username)}`);
+        const response = await fetch(`/api/?page=get_public_profile`);
   
       const data = await response.json();
   
@@ -59,33 +59,53 @@ export async function init() {
   }
 
   async function loadGallery(username = '') {
-    if (username) {
-      cards = await fetchSearch(username);
-      owner.innerHTML = `<h2 class="text-center">Gallery of <strong>${username}</strong></h2>`;
-    }
 
+    cards = await fetchAllImages();
+    owner.innerHTML = `<h2 class="text-center">Public Gallery</h2>`;
     totalPages = Math.ceil(cards.length / cardsPerPage);
     currentPage = 1;
     renderCards();
   }
   
-  function renderCards() {
+  async function renderCards() {
     cardContainer.innerHTML = '';
-
+    let likesCount = 0;
+    
     const startIndex = (currentPage - 1) * cardsPerPage;
     const endIndex = startIndex + cardsPerPage;
     const pageCards = cards.slice(startIndex, endIndex);
-
-    pageCards.forEach(image => {
+    
+    pageCards.forEach(async image => {
+        try {
+          const response = await fetch(`/api/?page=get_like_count&image_id=${image.id}`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+          });
+          const data = await response.json();
+    
+          if (response.status === 200) {
+            likesCount = data.count;
+            console.log('Likes count:', likesCount);
+          }
+        } catch (error) {
+          console.error('Error fetching likes count:', error);
+        }
       const item = document.createElement('div');
       item.classList.add('grid-item', 'card');
       const path = 'api/' + image.image_path;
+      const imageUrl = `/image?id=${image.id}`;
       item.innerHTML = `
-        <img src="${path}" alt="Uploaded image">
-        <div class="image-overlay">
-          <h5>${image.title}</h5>
-          <p class="mb-0">${new Date(image.created_at).toLocaleString()}</p>
-        </div>
+      <img src="${path}" alt="Uploaded image">
+      <div class="image-overlay">
+      <a href="${imageUrl}">
+      <h5 class="mb-0">${image.owner_name}</h5>
+      <h6>Likes: ${likesCount}</h6>
+      <p class="mb-0">${new Date(image.created_at).toLocaleString()}</p>
+      </a>
+      </div>
       `;
       cardContainer.appendChild(item);
     });

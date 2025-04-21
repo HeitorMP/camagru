@@ -2,15 +2,7 @@
 require_once BASE_PATH . '/config/database.php';
 
 class Likes extends DB {
-        // CREATE TABLE likes (
-    //     id INT AUTO_INCREMENT PRIMARY KEY,
-    //     image_id INT NOT NULL,
-    //     user_id INT NOT NULL,
-    //     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    //     UNIQUE(image_id, user_id),
-    //     FOREIGN KEY (image_id) REFERENCES images(id) ON DELETE CASCADE,
-    //     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    // );
+
 
     public function likeImage($image_id, $user_id) {
         $stmt = $this->pdo->prepare("INSERT INTO likes (image_id, user_id) VALUES (?, ?)");

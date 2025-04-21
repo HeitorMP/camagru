@@ -100,18 +100,30 @@
 }
 
 video {
-  width: 500px;
+  width: 700px;
   height: 400px;
   object-fit: cover;
 }
 
-right-column {
-  height: 100%;
-  overflow-y: auto;
+.right-column {
+  max-height: 600px;
+  overflow: hidden;
+  padding-right: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.right-column::-webkit-scrollbar {
+  width: 6px;
+}
+
+.right-column::-webkit-scrollbar-thumb {
+  background-color: #aaa;
+  border-radius: 10px;
 }
 
 #gallery-editor {
-  max-height: 600px;
+  max-height: 800px;
   overflow-y: auto;
   padding-right: 10px;
   scroll-behavior: smooth;
@@ -197,4 +209,20 @@ p {
 .page-numbers a.active {
   background-color: #007BFF;
   color: white;
+}
+
+#commentsContainer {
+  overflow-y: auto;
+  max-height: 100%;
+  padding-right: 6px;
+}
+
+/* Scrollbar personalizado */
+#commentsContainer::-webkit-scrollbar {
+  width: 6px;
+}
+
+#commentsContainer::-webkit-scrollbar-thumb {
+  background-color: #aaa;
+  border-radius: 10px;
 }

@@ -1,4 +1,4 @@
-import { insertLoggedInNavBar, insertNavBarGallery, insertLoggedOutNavBar, insertPublicProfileNavbar } from './navbar.js';
+import { insertLoggedInNavBar, insertNavBarGallery, insertLoggedOutNavBar } from './navbar.js';
 
 const routeModules = {
     '/register': () => import('./register.js'),
@@ -34,7 +34,7 @@ const routeHtml = {
 
 
 // protected routes
-const privateRoutes = ['/account', '/logout', '/gallery', '/editor', '/update_username', '/update_email', '/update_password', '/image'];
+const privateRoutes = ['/account', '/logout', '/gallery', '/editor', '/update_username', '/update_email', '/update_password'];
 
 const path = window.location.pathname;
 async function checkAuth() {
@@ -65,8 +65,8 @@ async function loadPage(path) {
             body.insertAdjacentHTML('afterbegin', insertLoggedInNavBar());
         }
     } else {
-        if (path === '/public') {
-            body.insertAdjacentHTML('afterbegin', insertPublicProfileNavbar());
+        if (path === '/public' && isAuth) {
+            body.insertAdjacentHTML('afterbegin', insertLoggedInNavBar());
         } else {
             body.insertAdjacentHTML('afterbegin', insertLoggedOutNavBar());
         }

@@ -52,6 +52,7 @@
             'delete_success' => 'Image deleted successfully.',
             'delete_failed' => 'Failed to delete image.',
             'file_too_large' => 'File size exceeds the limit of 2MB.',
+            'get_failed' => 'Failed to retrieve image.',
         ],
         'gallery' => [
             'user_not_found' => 'User not found.',
@@ -61,6 +62,14 @@
             'liked' => 'Image liked successfully.',
             'unliked' => 'Image unliked successfully.',
             'already_liked' => 'You have already liked this image.',
+            'invalid_request' => 'Invalid request.',
+        ],
+        'comments' => [
+            'comment_success' => 'Comment added successfully.',
+            'comment_failed' => 'Failed to add comment.',
+            'comment_delete_success' => 'Comment deleted successfully.',
+            'comment_delete_failed' => 'Failed to delete comment.',
+            'no_comments' => 'No comments found for this image.',
             'invalid_request' => 'Invalid request.',
         ],
     ];
