@@ -57,4 +57,10 @@
             'user_not_found' => 'User not found.',
             'no_images' => 'No images found for this user.',
         ],
+        'likes' => [
+            'liked' => 'Image liked successfully.',
+            'unliked' => 'Image unliked successfully.',
+            'already_liked' => 'You have already liked this image.',
+            'invalid_request' => 'Invalid request.',
+        ],
     ];

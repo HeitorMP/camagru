@@ -39,21 +39,8 @@ header("X-Frame-Options: DENY");
 header("X-XSS-Protection: 1; mode=block");
 header("Content-Security-Policy: default-src 'self'; script-src 'self'; connect-src 'self' http://localhost:8080");
 
-$csrfExcludedRoutes = ['logout']; // rotas que não precisam de verificação global de CSRF
+$csrfExcludedRoutes = ['logout', 'activate'];
 
-if (
-    ($_SERVER['REQUEST_METHOD'] === 'POST' || $_SERVER['REQUEST_METHOD'] === 'PUT' || $_SERVER['REQUEST_METHOD'] === 'DELETE')
-    && !in_array($page, $csrfExcludedRoutes)
-) {
-    $input = json_decode(file_get_contents("php://input"), true);
-    $csrfToken = $input['csrf_token'] ?? '';
-    if (!isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $csrfToken)) {
-        error_log("CSRF token mismatch. Sent: $csrfToken, Expected: {$_SESSION['csrf_token']}, IP: {$_SERVER['REMOTE_ADDR']}");
-        http_response_code(403);
-        echo json_encode(['status' => 'error', 'message' => 'CSRF token mismatch']);
-        exit;
-    }
-}
 
 
 define('BASE_PATH', dirname(__DIR__));
@@ -73,7 +60,8 @@ $gallery = new GalleryController();
 $allowedRoutes = [
     'register', 'login', 'activate', 'update_username', 'update_email',
     'update_password', 'logout', 'auth_check', 'reset_password',
-    'upload_photo', 'get_gallery', 'get_gallery_by_username', 'delete_photo'
+    'upload_photo', 'get_gallery', 'get_gallery_by_username', 'delete_photo',
+    'get_public_profile', 'get_image', 'like_image', 'get_like_count', 'dislike_image'
 ];
 $page = filter_input(INPUT_GET, 'page', FILTER_SANITIZE_STRING) ?? 'login';
 if (!in_array($page, $allowedRoutes)) {
@@ -82,12 +70,28 @@ if (!in_array($page, $allowedRoutes)) {
     exit;
 }
 
-// Verificar autenticação para rotas protegidas
-$protectedRoutes = ['update_username', 'update_email', 'update_password', 'upload_photo', 'delete_photo'];
-if (in_array($page, $protectedRoutes) && !isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
-    exit;
+
+if (
+    ($_SERVER['REQUEST_METHOD'] === 'POST' || $_SERVER['REQUEST_METHOD'] === 'PUT' || $_SERVER['REQUEST_METHOD'] === 'DELETE')
+    && !in_array($page, $csrfExcludedRoutes)
+) {
+    $csrfToken = '';
+
+    // Se for JSON
+    if (isset($_SERVER['CONTENT_TYPE']) && str_contains($_SERVER['CONTENT_TYPE'], 'application/json')) {
+        $input = json_decode(file_get_contents("php://input"), true);
+        $csrfToken = $input['csrf_token'] ?? '';
+    }
+    elseif (!empty($_POST['csrf_token'])) {
+        $csrfToken = $_POST['csrf_token'];
+    }
+
+    if (!isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $csrfToken)) {
+        error_log("CSRF token mismatch. Sent: $csrfToken, Expected: {$_SESSION['csrf_token']}, IP: {$_SERVER['REMOTE_ADDR']}");
+        http_response_code(403);
+        echo json_encode(['status' => 'error', 'message' => 'CSRF token mismatch']);
+        exit;
+    }
 }
 
 // Rotas
@@ -128,8 +132,23 @@ switch ($page) {
     case 'get_gallery_by_username':
         $gallery->getGalleryByUsername();
         break;
+    case 'get_public_profile':
+        $gallery->getPublicProfile();
+        break;
     case 'delete_photo':
         $editor->deleteImage();
+        break;
+    case 'get_image':
+        $editor->getImage();
+        break;
+    case 'like_image':
+        $gallery->likeImage();
+        break;
+    case 'dislike_image':
+        $gallery->dislikeImage();
+        break;
+    case 'get_like_count':
+        $gallery->getLikesCount();
         break;
     default:
         http_response_code(404);

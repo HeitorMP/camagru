@@ -54,6 +54,14 @@
   transform: translateY(-5px);
 }
 
+.grid-item a {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+  color: #ebe0e0;
+}
+
 .grid-item img {
   width: 100%;
   height: 100%;

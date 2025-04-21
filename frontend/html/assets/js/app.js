@@ -1,4 +1,4 @@
-import { insertNavBar, insertNavBarGallery } from './navbar.js';
+import { insertLoggedInNavBar, insertNavBarGallery, insertLoggedOutNavBar, insertPublicProfileNavbar } from './navbar.js';
 
 const routeModules = {
     '/register': () => import('./register.js'),
@@ -12,7 +12,8 @@ const routeModules = {
     '/update_password': () => import('./account.js'),
     '/gallery': () => import('./gallery.js'),
     '/reset_password': () => import('./reset_password.js'),
-    '/nova': () => import('./nova.js'),
+    '/public': () => import('./public.js'),
+    '/image': () => import('./image.js'),
 };
 
 const routeHtml = {
@@ -27,12 +28,13 @@ const routeHtml = {
     '/update_email': '/pages/account.html',
     '/update_password': '/pages/account.html',
     '/reset_password': '/pages/reset_password.html',
-    '/nova': '/pages/nova.html',
+    '/public': '/pages/public.html',
+    '/image': '/pages/image.html',
 };
 
 
 // protected routes
-const privateRoutes = ['/account', '/logout', '/gallery', '/editor', '/update_username', '/update_email', '/update_password'];
+const privateRoutes = ['/account', '/logout', '/gallery', '/editor', '/update_username', '/update_email', '/update_password', '/image'];
 
 const path = window.location.pathname;
 async function checkAuth() {
@@ -49,18 +51,24 @@ async function loadPage(path) {
         window.location.href = isAuth ? '/gallery' : '/login';
     }
 
+    const body = document.querySelector('body');
     if (privateRoutes.includes(path)) {
         if (!isAuth) {
             window.location.href = '/login';
             return;
         }
 
-        const body = document.querySelector('body');
         if (path === '/gallery') {
             body.insertAdjacentHTML('afterbegin', insertNavBarGallery());
         }
         else {
-            body.insertAdjacentHTML('afterbegin', insertNavBar());
+            body.insertAdjacentHTML('afterbegin', insertLoggedInNavBar());
+        }
+    } else {
+        if (path === '/public') {
+            body.insertAdjacentHTML('afterbegin', insertPublicProfileNavbar());
+        } else {
+            body.insertAdjacentHTML('afterbegin', insertLoggedOutNavBar());
         }
     }
 

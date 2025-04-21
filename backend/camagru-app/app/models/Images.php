@@ -47,4 +47,20 @@ class Images extends DB {
         $stmt->execute([$imageId, $userId]);
         return $stmt->fetchColumn() > 0;
     }
+
+    public function getImage($imageId) {
+        $stmt = $this->pdo->prepare("SELECT * FROM images WHERE id = ?");
+        $stmt->execute([$imageId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function updateLikes($imageId, $likes) {
+        $stmt = $this->pdo->prepare("UPDATE images SET likes = ? WHERE id = ?");
+        try {
+            $stmt->execute([$likes, $imageId]);
+        } catch (PDOException $e) {
+            return false;
+        }
+        return true;
+    }
 }

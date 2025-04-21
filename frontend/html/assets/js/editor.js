@@ -1,4 +1,21 @@
-export function init() {
+let csrfToken = null;
+async function fetchCsrfToken() {
+  try {
+      const response = await fetch('/api/?page=auth_check', {
+          method: 'GET',
+          credentials: 'include'
+      });
+      const data = await response.json();
+      csrfToken = data.csrf_token;
+      console.log('CSRF Token obtido:', csrfToken);
+  } catch (error) {
+      const flash = document.getElementById('flashMessage');
+      flash.textContent = 'Csrf token invalid. Try again';
+      flash.style.color = 'red';
+  }
+}
+
+export async function init() {
   console.log('Editor init');
 
   const width = 320;
@@ -21,6 +38,8 @@ export function init() {
     ];
     return overlays;
   }
+
+  await fetchCsrfToken();
 
   function startup() {
     const overlaySelect = document.getElementById("overlay-select");
@@ -179,9 +198,19 @@ export function init() {
         return;
       }
 
+      if (!csrfToken) {
+        await fetchCsrfToken();
+        if (!csrfToken) {
+            flash.textContent = 'Erro: Token de segurança não disponível.';
+            flash.style.color = 'red';
+            return;
+        }
+    }
+
       const formData = new FormData();
       formData.append("photo", blob, "captured.png");
       formData.append("overlay", overlay);
+      formData.append("csrf_token", csrfToken );
 
       try {
         const response = await fetch('/api/?page=upload_photo', {
@@ -205,9 +234,11 @@ export function init() {
   }
 
   async function loadGallery() {
+    
     try {
       const response = await fetch('/api/?page=get_gallery', {
-        credentials: 'include'
+        credentials: 'include',
+        method: 'GET',
       });
 
       const data = await response.json();
@@ -232,11 +263,22 @@ export function init() {
         const deleteButton = card.querySelector(".btn-danger");
         deleteButton.addEventListener("click", async (e) => {
           e.preventDefault();
+          if (!csrfToken) {
+            await fetchCsrfToken();
+            if (!csrfToken) {
+                flash.textContent = 'Erro: Token de segurança não disponível.';
+                flash.style.color = 'red';
+                return;
+            }
+          }
           try {
             const response = await fetch(`/api/?page=delete_photo`, {
+              headers: {
+                'Content-Type': 'application/json'
+              },
               method: 'DELETE',
               credentials: 'include',
-              body: JSON.stringify({ filename: filename }),
+              body: JSON.stringify({ filename: filename, csrf_token: csrfToken }),
             });
             const data = await response.json();
 

@@ -1,17 +1,3 @@
-let csrfToken = null;
-async function fetchCsrfToken() {
-  try {
-      const response = await fetch('/api/?page=auth_check', {
-          method: 'GET',
-          credentials: 'include'
-      });
-      const data = await response.json();
-      csrfToken = data.csrf_token;
-      console.log('CSRF Token obtido:', csrfToken);
-  } catch (error) {
-      alert('Erro ao obter CSRF Token:', error);
-  }
-}
 
 export async function init() {
   const cardsPerPage = 12;
@@ -50,45 +36,11 @@ export async function init() {
     });
   }
 
-  await fetchCsrfToken();
-
-  async function fetchPhotos() {
-    try {
-      const response = await fetch('/api/?page=get_gallery', {
-        credentials: 'include'
-      });
-      const data = await response.json();
-      if (data.status === 'success' && data.photos.length > 0) {
-        return data.photos;
-      } else {
-        return [];
-      }
-    } catch (err) {
-      console.error('Erro ao carregar galeria:', err);
-      return [];
-    }
-  }
 
   async function fetchSearch(username) {
-
-    if (!csrfToken) {
-      await fetchCsrfToken();
-      if (!csrfToken) {
-          flash.textContent = 'Erro: Token de segurança não disponível.';
-          flash.style.color = 'red';
-          return;
-      }
-  }
     
     try {
-      const response = await fetch(`/api/?page=get_gallery_by_username`, {
-        credentials: 'include',
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username, csrf_token: csrfToken })
-      });
+        const response = await fetch(`/api/?page=get_public_profile&username=${encodeURIComponent(username)}`);
   
       const data = await response.json();
   
@@ -109,64 +61,31 @@ export async function init() {
   async function loadGallery(username = '') {
     if (username) {
       cards = await fetchSearch(username);
-  
-      if (errorMessage) {
-        owner.innerHTML = `<h2 class="text-center text-danger">${errorMessage}</h2>`;
-        errorMessage = "";
-      } else {
-        owner.innerHTML = `<h2 class="text-center">Gallery of <strong>${username}</strong></h2>`;
-      }
-    } else {
-      cards = await fetchPhotos();
-      owner.innerHTML = `<h2 class="text-center">My Gallery</h2>`;
+      owner.innerHTML = `<h2 class="text-center">Gallery of <strong>${username}</strong></h2>`;
     }
-  
+
     totalPages = Math.ceil(cards.length / cardsPerPage);
     currentPage = 1;
     renderCards();
   }
   
-  function  renderCards() {
+  function renderCards() {
     cardContainer.innerHTML = '';
 
     const startIndex = (currentPage - 1) * cardsPerPage;
     const endIndex = startIndex + cardsPerPage;
     const pageCards = cards.slice(startIndex, endIndex);
 
-    pageCards.forEach(async (image) => {
-      let likesCount = 0;
-      try {
-        const response = await fetch(`/api/?page=get_like_count`, {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ image_id: image.id, csrf_token: csrfToken }),
-        });
-        const data = await response.json();
-
-        if (response.status === 200) {
-          likesCount = data.count;
-          console.log('Likes count:', likesCount);
-        }
-      } catch (error) {
-        console.error('Error fetching likes count:', error);
-      }
-
+    pageCards.forEach(image => {
       const item = document.createElement('div');
       item.classList.add('grid-item', 'card');
       const path = 'api/' + image.image_path;
-      const imageUrl = `/image?id=${image.id}`; // ou `image_id`, como quiser
-    
       item.innerHTML = `
-      <img src="${path}" alt="Uploaded image">
-      <div class="image-overlay">
-      <a href="${imageUrl}">
-      <h5>Likes: ${likesCount}</h5>
-      <p class="mb-0">${new Date(image.created_at).toLocaleString()}</p>
-      </a>
-      </div>
+        <img src="${path}" alt="Uploaded image">
+        <div class="image-overlay">
+          <h5>${image.title}</h5>
+          <p class="mb-0">${new Date(image.created_at).toLocaleString()}</p>
+        </div>
       `;
       cardContainer.appendChild(item);
     });

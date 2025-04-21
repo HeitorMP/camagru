@@ -97,5 +97,27 @@ class ImageController {
             response('error', null, message('image.delete_failed'));
         }
     }
-    
+
+    public function getImage() {
+        requireAuth();
+
+        if ($_SERVER['REQUEST_METHOD'] != 'GET') {
+            response('error', null, message('image.get_failed'));
+        }
+        $userId = $_SESSION['user_id'];
+        $imageId = $_GET['id'] ?? null;
+
+        if (!$userId || !$imageId) {
+            response('error', null, message('image.get_failed'));
+        }
+
+        $images = new Images();
+        $image = $images->getImage($imageId);
+
+        if ($image) {
+            echo json_encode(['status' => 'success', 'photo' => $image]); 
+        } else {
+            response('error', null, message('image.get_failed'));
+        }
+    }
 }

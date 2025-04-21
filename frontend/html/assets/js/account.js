@@ -1,9 +1,39 @@
-export function init() {
+let csrfToken = null;
+
+async function fetchCsrfToken() {
+    try {
+        const response = await fetch('/api/?page=auth_check', {
+            method: 'GET',
+            credentials: 'include'
+        });
+        const data = await response.json();
+        csrfToken = data.csrf_token;
+        console.log('CSRF Token obtido:', csrfToken);
+    } catch (error) {
+        const flash = document.getElementById('flashMessage');
+        flash.textContent = 'Csrf token invalid. Try again';
+        flash.style.color = 'red';
+    }
+}
+
+export async function init() {
     const flash = document.getElementById('flashMessage');
 
+    await fetchCsrfToken();
+    
     document.getElementById('updateUsernameButton').addEventListener('click', async function (e) {
         e.preventDefault();
         const username = document.getElementById('username').value.trim();
+        
+        if (!csrfToken) {
+            await fetchCsrfToken();
+            if (!csrfToken) {
+                flash.textContent = 'Erro: Token de segurança não disponível.';
+                flash.style.color = 'red';
+                return;
+            }
+        }
+
 
         try {
             const response = await fetch('/api/?page=update_username', {
@@ -12,7 +42,7 @@ export function init() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ username })
+                body: JSON.stringify({ username, csrf_token: csrfToken })
             });
 
             const data = await response.json();
@@ -36,6 +66,15 @@ export function init() {
     document.getElementById('updateEmailButton').addEventListener('click', async function (e) {
         e.preventDefault();
         const email = document.getElementById('email').value.trim();
+
+        if (!csrfToken) {
+            await fetchCsrfToken();
+            if (!csrfToken) {
+                flash.textContent = 'Erro: Token de segurança não disponível.';
+                flash.style.color = 'red';
+                return;
+            }
+        }
         
         try {
             const response = await fetch('/api/?page=update_email', {
@@ -44,7 +83,7 @@ export function init() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ email })
+                body: JSON.stringify({ email, csrf_token: csrfToken })
             });
 
             const data = await response.json();
@@ -70,6 +109,15 @@ export function init() {
         const password = document.getElementById('password').value.trim();
         const confirmPassword = document.getElementById('confirmPassword').value.trim();
 
+        if (!csrfToken) {
+            await fetchCsrfToken();
+            if (!csrfToken) {
+                flash.textContent = 'Erro: Token de segurança não disponível.';
+                flash.style.color = 'red';
+                return;
+            }
+        }
+
         
         try {
             const response = await fetch('/api/?page=update_password', {
@@ -78,7 +126,7 @@ export function init() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ currentPassword, password, confirmPassword })
+                body: JSON.stringify({ currentPassword, password, confirmPassword, csrf_token: csrfToken })
             });
 
             const data = await response.json();

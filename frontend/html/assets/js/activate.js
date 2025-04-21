@@ -1,10 +1,7 @@
 export async function init() {
-    alert('init activate.js');
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
     const email = params.get('email');
-    alert('code: ' + code);
-    alert('email: ' + email);   
 
     if (code && email) {
         try {
@@ -17,7 +14,6 @@ export async function init() {
 
             const data = await response.json();
             console.log(data);
-            alert(data.message);
             if (response.ok) {
                 localStorage.setItem('flashMessage', data.message);
                 localStorage.setItem('flashStatus', data.status);
