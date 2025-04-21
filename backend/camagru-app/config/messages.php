@@ -3,6 +3,7 @@
         'auth' => [
             'generic_error' => 'An error occurred. Please try again.',
             'not_logged_in' => 'You must be logged in to access this page.',
+            'login_required' => 'Login is required to access this page.',
             'login_failed' => 'Invalid email or password.',
             'login_success' => 'Login successful.',
             'register_success' => 'User registered successfully.',
@@ -50,6 +51,7 @@
             'upload_failed' => 'Failed to upload image.',
             'delete_success' => 'Image deleted successfully.',
             'delete_failed' => 'Failed to delete image.',
+            'file_too_large' => 'File size exceeds the limit of 2MB.',
         ],
         'gallery' => [
             'user_not_found' => 'User not found.',

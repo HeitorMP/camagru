@@ -36,11 +36,10 @@ const privateRoutes = ['/account', '/logout', '/gallery', '/editor', '/update_us
 
 const path = window.location.pathname;
 async function checkAuth() {
-    const res = await fetch('/api/?page=auth_check', {
+    const response = await fetch('/api/?page=auth_check', {
         credentials: 'include'
     });
-    const data = await res.json();
-    console.log(data);
+    const data = await response.json();
     return data.authenticated === true;
 }
 

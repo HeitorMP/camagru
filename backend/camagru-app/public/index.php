@@ -1,12 +1,59 @@
 <?php
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+// Configurações de erro para produção
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
+ini_set('log_errors', 1);
+ini_set('error_log', dirname(__DIR__) . '/logs/error.log');
 error_reporting(E_ALL);
 
+// Configuração segura da sessão
+ini_set('session.cookie_httponly', 1);
+ini_set('session.cookie_secure', 0); // manter 0 em local
+ini_set('session.cookie_samesite', 'Lax');
+session_start();
+
+// Timeout de sessão (30 minutos)
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 1800)) {
+    session_unset();
+    session_destroy();
+    session_start();
+}
+$_SESSION['last_activity'] = time();
+
+// Gerar token CSRF se não existir
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+// Configurações CORS
 header("Access-Control-Allow-Origin: http://localhost:8080");
 header("Access-Control-Allow-Credentials: true");
+header("Access-Control-Allow-Methods: GET, POST");
+header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
+
+// Security headers
+header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: DENY");
+header("X-XSS-Protection: 1; mode=block");
+header("Content-Security-Policy: default-src 'self'; script-src 'self'; connect-src 'self' http://localhost:8080");
+
+$csrfExcludedRoutes = ['logout']; // rotas que não precisam de verificação global de CSRF
+
+if (
+    ($_SERVER['REQUEST_METHOD'] === 'POST' || $_SERVER['REQUEST_METHOD'] === 'PUT' || $_SERVER['REQUEST_METHOD'] === 'DELETE')
+    && !in_array($page, $csrfExcludedRoutes)
+) {
+    $input = json_decode(file_get_contents("php://input"), true);
+    $csrfToken = $input['csrf_token'] ?? '';
+    if (!isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $csrfToken)) {
+        error_log("CSRF token mismatch. Sent: $csrfToken, Expected: {$_SESSION['csrf_token']}, IP: {$_SERVER['REMOTE_ADDR']}");
+        http_response_code(403);
+        echo json_encode(['status' => 'error', 'message' => 'CSRF token mismatch']);
+        exit;
+    }
+}
 
 
 define('BASE_PATH', dirname(__DIR__));
@@ -22,9 +69,28 @@ $account = new AccountController();
 $editor = new ImageController();
 $gallery = new GalleryController();
 
-// Routes
-$page = $_GET['page'] ?? 'login';
+// Validar e rotear
+$allowedRoutes = [
+    'register', 'login', 'activate', 'update_username', 'update_email',
+    'update_password', 'logout', 'auth_check', 'reset_password',
+    'upload_photo', 'get_gallery', 'get_gallery_by_username', 'delete_photo'
+];
+$page = filter_input(INPUT_GET, 'page', FILTER_SANITIZE_STRING) ?? 'login';
+if (!in_array($page, $allowedRoutes)) {
+    http_response_code(404);
+    echo json_encode(['status' => 'error', 'message' => 'Route not found']);
+    exit;
+}
 
+// Verificar autenticação para rotas protegidas
+$protectedRoutes = ['update_username', 'update_email', 'update_password', 'upload_photo', 'delete_photo'];
+if (in_array($page, $protectedRoutes) && !isset($_SESSION['user_id'])) {
+    http_response_code(401);
+    echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+    exit;
+}
+
+// Rotas
 switch ($page) {
     case 'register':
         $auth->register();
@@ -70,3 +136,4 @@ switch ($page) {
         echo json_encode(['status' => 'error', 'message' => 'Route not found']);
         break;
 }
+?>

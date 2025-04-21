@@ -8,7 +8,7 @@
             $response = [
                 'status' => $status,
                 'redirect' => $page,
-                'message' => $message
+                'message' => htmlspecialchars($message, ENT_QUOTES, 'UTF-8') // escaped messge
             ];
         }
 

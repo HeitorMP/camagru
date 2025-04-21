@@ -15,7 +15,12 @@ class AuthController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $input = json_decode(file_get_contents("php://input"), true);
             $username = strtolower(trim($input['username'] ?? ''));
+
             $email = filter_var(trim($input['email'] ?? ''), FILTER_SANITIZE_EMAIL);
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                response('error', null, 'Invalid email format');
+                return;
+            }
             $password = trim($input['password'] ?? '');
             $confirm_password = trim($input['confirm_password'] ?? '');
 
@@ -77,13 +82,9 @@ class AuthController {
                 ini_set('session.cookie_secure', '0');
                 session_start();
 
+                session_regenerate_id(true); // Regenerate session ID to prevent session fixation attacks
                 $_SESSION['user_id'] = $id;
 
-                // if (session_status() === PHP_SESSION_NONE) {
-                //     ini_set('session.cookie_samesite', 'Lax');
-                //     session_start();
-                // }
-                // $_SESSION['user_id'] = $id;
                 response('success', '/gallery', null);
             } else {
                 response('error', null, message('auth.login_failed'));
@@ -161,25 +162,45 @@ class AuthController {
         header('Content-Type: application/json');
     
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (session_status() === PHP_SESSION_NONE) {
-                session_start();
+            $input = json_decode(file_get_contents("php://input"), true);
+            $csrfToken = $input['csrf_token'] ?? '';
+    
+            if (!isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $csrfToken)) {
+                http_response_code(403);
+                echo json_encode(['status' => 'error', 'message' => 'CSRF token inválido no logout.']);
+                return;
             }
-            unset($_SESSION['user_id']);
+    
+            error_log("Logout attempt from IP: {$_SERVER['REMOTE_ADDR']}");
+            
+            // Limpar e destruir sessão atual
+            session_unset();
             session_destroy();
-            response('success', '/login', message('auth.logout'));
+
+            // Força novo ID de sessão para evitar fixação
+            session_start();
+            session_regenerate_id(true);
+
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+
+            echo json_encode([
+                'status' => 'success',
+                'redirect' => '/login',
+                'user_id' => $_SESSION['user_id'] ?? null,
+                'csrf_token' => $_SESSION['csrf_token']
+            ]);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);
         }
     }
 
     public function checkAuth() {
         header('Content-Type: application/json');
-        ini_set('session.cookie_samesite', 'Lax');
-        ini_set('session.cookie_secure', '0'); // só se NÃO usar https
-        session_start();
-
         
         echo json_encode([
-          'authenticated' => isset($_SESSION['user_id']),
-          'user_id' => $_SESSION['user_id'] ?? null,
+            'authenticated' => isset($_SESSION['user_id']),
+            'user_id' => $_SESSION['user_id'] ?? null,
+            'csrf_token' => $_SESSION['csrf_token']
         ]);
     }
 }

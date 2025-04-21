@@ -1,4 +1,22 @@
-export function init() {
+let csrfToken = null;
+
+async function fetchCsrfToken() {
+    try {
+        const response = await fetch('/api/?page=auth_check', {
+            method: 'GET',
+            credentials: 'include'
+        });
+        const data = await response.json();
+        csrfToken = data.csrf_token;
+        console.log('CSRF Token obtido:', csrfToken);
+    } catch (error) {
+        const flash = document.getElementById('flashMessage');
+        flash.textContent = 'Csrf token invalid. Try again';
+        flash.style.color = 'red';
+    }
+}
+
+export async function init() {
     const params = new URLSearchParams(window.location.search);
     const msg = localStorage.getItem('flashMessage') || params.get('msg');
     const status = localStorage.getItem('flashStatus') || params.get('status');
@@ -19,6 +37,9 @@ export function init() {
     // remove params from url
     window.history.replaceState({}, document.title, window.location.pathname);
 
+
+    await fetchCsrfToken();
+
     document.getElementById('loginForm').addEventListener('submit', async function (e) {
         e.preventDefault();
     
@@ -26,6 +47,15 @@ export function init() {
         const password = document.getElementById('password').value.trim();
     
         const flash = document.getElementById('flashMessage');
+
+        if (!csrfToken) {
+            await fetchCsrfToken();
+            if (!csrfToken) {
+                flash.textContent = 'Erro: Token de segurança não disponível.';
+                flash.style.color = 'red';
+                return;
+            }
+        }
     
         try {
             const response = await fetch('/api/?page=login', {
@@ -34,7 +64,7 @@ export function init() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ username, password, csrf_token: csrfToken })
             });
 
             const data = await response.json();
