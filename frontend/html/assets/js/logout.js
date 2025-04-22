@@ -2,7 +2,7 @@ let csrfToken = null;
 
 async function fetchCsrfToken() {
     try {
-        console.log('Obtendo CSRF token...');
+
         const response = await fetch('/api/?page=auth_check', {
             method: 'GET',
             credentials: 'include'
@@ -12,7 +12,7 @@ async function fetchCsrfToken() {
         }
         const data = await response.json();
         csrfToken = data.csrf_token;
-        console.log('CSRF Token obtido:', csrfToken);
+
         if (!csrfToken) {
             throw new Error('CSRF token não retornado pelo servidor');
         }
@@ -63,7 +63,7 @@ export async function init() {
 
     // Enviar requisição de logout
     try {
-        console.log('Enviando requisição de logout com CSRF token:', csrfToken);
+
         const response = await fetch('/api/?page=logout', {
             method: 'POST',
             credentials: 'include',
@@ -74,18 +74,18 @@ export async function init() {
         });
 
         const data = await response.json();
-        console.log('Resposta do logout:', data);
+
 
         // Atualizar CSRF token se retornado
         if (data.csrf_token) {
             csrfToken = data.csrf_token;
-            console.log('CSRF Token atualizado:', csrfToken);
+
         }
 
         // Limpar cookies após logout bem-sucedido
         if (data.status === 'success') {
             clearCookies();
-            console.log('Redirecionando para:', data.redirect);
+
             window.location.href = data.redirect || '/login';
         } else {
             const flash = document.getElementById('flashMessage');

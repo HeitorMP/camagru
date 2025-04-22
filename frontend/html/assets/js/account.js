@@ -8,10 +8,39 @@ async function fetchCsrfToken() {
         });
         const data = await response.json();
         csrfToken = data.csrf_token;
-        console.log('CSRF Token obtido:', csrfToken);
+        
     } catch (error) {
         const flash = document.getElementById('flashMessage');
         flash.textContent = 'Csrf token invalid. Try again';
+        flash.style.color = 'red';
+    }
+}
+
+async function toggleNotifications(current_checked_status) {
+
+    
+
+    try {
+        const response = await fetch('/api/?page=update_email_notification', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ csrf_token: csrfToken, notifications_enabled: current_checked_status })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.status === 'success') {
+            const flash = document.getElementById('flashMessage');
+            flash.textContent = data.message || 'Notification settings updated successfully.';
+            flash.style.color = 'green';
+        }
+    } catch (error) {
+        console.error('Network error:', error);
+        const flash = document.getElementById('flashMessage');
+        flash.textContent = 'Network error. Please try again later.';
         flash.style.color = 'red';
     }
 }
@@ -144,5 +173,27 @@ export async function init() {
             flash.style.color = 'red';
         }
     });
+
+
+    const checkbox = document.getElementById("flexCheckDefault");
+    
+    checkbox.addEventListener('change', function() {
+        toggleNotifications(checkbox.checked);
+    });
+    try {
+        const response = await fetch('/api/?page=get_email_notification', {
+            method: 'GET',
+            credentials: 'include'
+        });
+        const data = await response.json();
+        
+        checkbox.checked = data.email_notifications;
+    } catch (error) {
+        console.error('Network error:', error);
+        flash.textContent = 'Network error. Please try again later.';
+        flash.style.color = 'red';
+    }
+
+
     
 }

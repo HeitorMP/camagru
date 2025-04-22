@@ -65,7 +65,7 @@ async function loadPage(path) {
             body.insertAdjacentHTML('afterbegin', insertLoggedInNavBar());
         }
     } else {
-        if (path === '/public' && isAuth) {
+        if ((path === '/public' || path === '/image') && isAuth) {
             body.insertAdjacentHTML('afterbegin', insertLoggedInNavBar());
         } else {
             body.insertAdjacentHTML('afterbegin', insertLoggedOutNavBar());

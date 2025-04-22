@@ -6,7 +6,7 @@ export function init() {
         e.preventDefault();
 
         const email = document.getElementById('email').value.trim();
-        console.log(email);
+
         try {
             const response = await fetch('/api/?page=reset_password', {
                 method: 'POST',

@@ -13,7 +13,7 @@ export async function init() {
             });
 
             const data = await response.json();
-            console.log(data);
+
             if (response.ok) {
                 localStorage.setItem('flashMessage', data.message);
                 localStorage.setItem('flashStatus', data.status);

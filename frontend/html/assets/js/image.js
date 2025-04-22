@@ -1,4 +1,5 @@
 let csrfToken = null;
+let imageUrl = null;
 
 async function fetchCsrfToken() {
     try {
@@ -106,7 +107,7 @@ function renderComment({ owner_name, content, created_at }) {
             csrf_token: csrfToken
           })
         });
-  
+
         const data = await response.json();
         const commentsContainer = document.getElementById('commentsContainer');
   
@@ -118,36 +119,57 @@ function renderComment({ owner_name, content, created_at }) {
           commentsContainer.innerHTML = `<p class="text-muted">${data.message}</p>`;
         }
       } catch (err) {
-        commentsContainer.innerHTML = `<p class="text-muted">${data.message}</p>`;
+        commentsContainer.innerHTML = `<p class="text-muted">Try again</p>`;
       }
     });
   }
-  
-  
 
+  function generateShareButton(url) {
+    return `<a href="https://www.facebook.com/sharer/sharer.php?u=${url}" target="_blank"
+                  class="btn btn-outline-primary">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-facebook" viewBox="0 0 16 16">
+                    <path
+                      d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951" />
+                  </svg>
+                  <i class="bi bi-facebook"></i>
+              </a>`;
+
+  }
+  
+async function loadImage(id) {
+  const response = await fetch(`/api/?page=get_image&id=${id}`);
+  const data = await response.json();
+
+  if (data.status === 'success') {
+    const img = document.createElement('img');
+    img.src = 'api/' + data.photo.image_path;
+    img.alt = 'Imagem';
+    imageUrl = img.src;
+
+    const facebook = document.getElementById('facebook');
+    if (facebook) {
+      facebook.innerHTML = generateShareButton(img.src);
+    }
+
+    await getLikes(id).then((likesCount) => {
+      const likesCountElement = document.getElementById('likes');
+      likesCountElement.textContent = `Likes: ${likesCount}`;
+    });
+  
+    document.getElementById('imageContainer').append(img);
+  } else {
+    document.getElementById('imageContainer').textContent = data.message || 'Erro ao carregar imagem.';
+  }
+
+
+}
   export async function init() {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
     if (!id) return;
   
-    const response = await fetch(`/api/?page=get_image&id=${id}`);
-    const data = await response.json();
-  
-    if (data.status === 'success') {
-      const img = document.createElement('img');
-      img.src = 'api/' + data.photo.image_path;
-      img.alt = 'Imagem';
-  
-      await getLikes(id).then((likesCount) => {
-        const likesCountElement = document.getElementById('likes');
-        likesCountElement.textContent = `Likes: ${likesCount}`;
-      });
-  
-      document.getElementById('imageContainer').append(img);
-    } else {
-      document.getElementById('imageContainer').textContent = data.message || 'Erro ao carregar imagem.';
-    }
-  
+    loadImage(id);
     await fetchCsrfToken();
     const likeButton = document.getElementById('like-btn');
     if (likeButton) {
@@ -162,8 +184,7 @@ function renderComment({ owner_name, content, created_at }) {
             });
             const data = await res.json();
             if (data.status === 'success') {
-                const relo = window.location.href;
-                window.location.href = relo;
+              loadImage(id);
             }
         });
     }
@@ -182,12 +203,29 @@ function renderComment({ owner_name, content, created_at }) {
             const data = await res.json();
 
             if (data.status === 'success') {
-                const relo = window.location.href;
-                window.location.href = relo;
+              loadImage(id);
             }
         });
     }
 
+    document.getElementById("copy").addEventListener("click", () => {
+      const url = imageUrl;
+  
+      navigator.clipboard.writeText(url)
+      .then(() => {
+        const toast = document.getElementById("customToast");
+        toast.classList.add("show");
+
+        setTimeout(() => {
+          toast.classList.remove("show");
+        }, 3000);
+      })
+      .catch(err => {
+        console.error("Erro ao copiar:", err);
+        alert("Erro ao copiar o link.");
+      });
+    });
+    
     await loadComments(id);
     setupCommentForm(id);
 }

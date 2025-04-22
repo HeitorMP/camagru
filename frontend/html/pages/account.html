@@ -18,7 +18,7 @@
                             <div class="row gy-3 gy-md-4 overflow-hidden">
                                 <div class="col-12">
                                     <label for="username" class="form-label">New Username </label>
-                                    <input type="text" class="form-control" id="username" required>
+                                    <input type="text" maxlength="16" class="form-control" id="username" required>
                                 </div>
                             </div>
                         </form>
@@ -46,6 +46,12 @@
                             </div>
                         </div>
                         <br>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                            <label class="form-check-label" for="flexCheckDefault">
+                              Email Notifications
+                            </label>
+                        </div>
                     </div>
                 </div>
                 <div class="col-12 col-md-6">
@@ -61,15 +67,15 @@
                             <div class="row gy-3 gy-md-4 overflow-hidden">
                                 <div class="col-12">
                                     <label for="currentPassword" class="form-label">Current Password </label>
-                                    <input type="password" class="form-control" id="currentPassword" required>
+                                    <input type="password" class="form-control" maxlength="16" id="currentPassword" required>
                                 </div>
                                 <div class="col-12">
                                     <label for="password" class="form-label">New Password </label>
-                                    <input type="password" class="form-control" id="password" required>
+                                    <input type="password" class="form-control" maxlength="16" id="password" required>
                                 </div>
                                 <div class="col-12">
                                     <label for="confirmPassword" class="form-label">Confirm Password </label>
-                                    <input type="password" class="form-control" id="confirmPassword" required>
+                                    <input type="password" class="form-control" maxlength="16" id="confirmPassword" required>
                                 </div>
                             </div>
                         </form>
@@ -81,6 +87,7 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
             <div id="flashMessage" class="flash"></div>

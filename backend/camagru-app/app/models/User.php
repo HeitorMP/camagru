@@ -78,6 +78,22 @@ class User extends DB {
         return $stmt->fetchColumn();
     }
 
+    public function getEmailNotifications($id) {
+        $stmt = $this->pdo->prepare("SELECT email_notifications FROM users WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetchColumn();
+    }
+
+    public function updateEmailNotifications($id, $email_notifications) {
+        $stmt = $this->pdo->prepare("UPDATE users SET email_notifications = ? WHERE id = ?");
+        try {
+            $stmt->execute([$email_notifications, $id]);    
+        } catch (PDOException $e) {
+            return false;
+        }
+        return true;
+    }
+
     public function updateUsername($id, $username) {
         $stmt = $this->pdo->prepare("UPDATE users SET username = ? WHERE id = ?");
         try {

@@ -68,7 +68,6 @@
   object-fit: cover;
   transition: transform 0.5s ease;
 }
-
 .grid-item:hover img {
   transform: scale(1.1);
 }
@@ -217,7 +216,6 @@ p {
   padding-right: 6px;
 }
 
-/* Scrollbar personalizado */
 #commentsContainer::-webkit-scrollbar {
   width: 6px;
 }
@@ -225,4 +223,25 @@ p {
 #commentsContainer::-webkit-scrollbar-thumb {
   background-color: #aaa;
   border-radius: 10px;
+}
+
+.custom-toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #198754;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  transform: translateY(20px);
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.custom-toast.show {
+  opacity: 1;
+  transform: translateY(0);
 }

@@ -4,7 +4,6 @@
         return bin2hex(random_bytes($length / 2));
     }
 
-    
     function generateRandomPassword($length = 16) {
         $uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $lowercase = 'abcdefghijklmnopqrstuvwxyz';
@@ -44,6 +43,14 @@
         $subject = "Your new password";
         $message = "This is yout new password, change soon as possible: ";
         $message .= "password: " . $new_pass;
+        $headers = "From: camagru@42porto.com";
+        mail($email, $subject, $message, $headers);
+    }
+
+    function sendCommentUpdate($email, $comment, $senderUsername) {
+        $subject = "New comment on your post";
+        $message = "You have a new comment from " . $senderUsername . " on your post!\n";
+        $message .= "Comment: " . $comment;
         $headers = "From: camagru@42porto.com";
         mail($email, $subject, $message, $headers);
     }

@@ -88,7 +88,7 @@ export async function init() {
     
           if (response.status === 200) {
             likesCount = data.count;
-            console.log('Likes count:', likesCount);
+
           }
         } catch (error) {
           console.error('Error fetching likes count:', error);

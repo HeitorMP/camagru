@@ -15,7 +15,7 @@ export function insertNavBarGallery() {
           </div>
       </div>
       <form id="search-form" class="d-flex align-items-center px-3">
-          <input id="search-username" class="form-control me-2" type="search" placeholder="username" aria-label="Search">
+          <input id="search-username" maxlength="16" class="form-control me-2" type="search" placeholder="username" aria-label="Search">
           <button id="search-btn" class="btn btn btn-primary" type="submit">Search</button>
       </form>
     </nav>

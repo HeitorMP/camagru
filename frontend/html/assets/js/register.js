@@ -39,7 +39,7 @@ export async function init() {
             });
      
             const data = await response.json();
-            console.log('Resposta do servidor:', data);
+
 
             const flash = document.getElementById('flashMessage');
             if (response.ok && data.status === 'success') {

@@ -45,6 +45,8 @@
             'password_update_failed' => 'Failed to update password.',
             'empty_current_password' => 'Current password cannot be empty.',
             'current_password_incorrect' => 'Current password is incorrect.',
+            'email_update_notification_success' => 'Email notification settings updated successfully.',
+            'email_update_notification_failed' => 'Failed to update email notification settings.',
         ],
         'image' => [
             'upload_success' => 'Image uploaded successfully.',

@@ -62,7 +62,7 @@ $allowedRoutes = [
     'update_password', 'logout', 'auth_check', 'reset_password',
     'upload_photo', 'get_gallery', 'get_gallery_by_username', 'delete_photo',
     'get_public_profile', 'get_image', 'like_image', 'get_like_count', 'dislike_image',
-    'get_comments', 'add_comment', 'delete_comment'
+    'get_comments', 'add_comment', 'delete_comment', 'update_email_notification', 'get_email_notification',
 ];
 $page = filter_input(INPUT_GET, 'page', FILTER_SANITIZE_STRING) ?? 'login';
 if (!in_array($page, $allowedRoutes)) {
@@ -115,6 +115,9 @@ switch ($page) {
     case 'update_password':
         $account->updatePassword();
         break;
+    case 'update_email_notification':
+        $account->updateEmailNotification();
+        break;
     case 'logout':
         $auth->logout();
         break;
@@ -126,6 +129,9 @@ switch ($page) {
         break;
     case 'upload_photo':
         $editor->uploadImage();
+        break;
+    case 'get_email_notification':
+        $account->getEmailNotification();
         break;
     case 'get_gallery':
         $editor->getGallery();

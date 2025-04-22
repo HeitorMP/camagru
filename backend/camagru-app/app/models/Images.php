@@ -25,6 +25,12 @@ class Images extends DB {
         return true;
     }
 
+    public function getImageOwner($imageId) {
+        $stmt = $this->pdo->prepare("SELECT owner_name FROM images WHERE id = ?");
+        $stmt->execute([$imageId]);
+        return $stmt->fetchColumn();
+    }
+
     public function getAllImagesSortedByDate() {
         $stmt = $this->pdo->prepare("SELECT * FROM images ORDER BY created_at DESC");
         $stmt->execute();

@@ -3,7 +3,7 @@
 require_once BASE_PATH . '/app/models/User.php';
 require_once BASE_PATH . '/app/helpers/redirect.php';
 require_once BASE_PATH . '/app/helpers/messages.php';
-require_once BASE_PATH . '/app/helpers/activation_code.php';
+require_once BASE_PATH . '/app/helpers/mail_sender.php';
 require_once BASE_PATH . '/app/helpers/sanitizer.php';
 
 class AuthController {

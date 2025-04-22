@@ -7,7 +7,7 @@ async function fetchCsrfToken() {
       });
       const data = await response.json();
       csrfToken = data.csrf_token;
-      console.log('CSRF Token obtido:', csrfToken);
+
   } catch (error) {
       const flash = document.getElementById('flashMessage');
       flash.textContent = 'Csrf token invalid. Try again';
@@ -16,7 +16,7 @@ async function fetchCsrfToken() {
 }
 
 export async function init() {
-  console.log('Editor init');
+
 
   const width = 320;
   let height = 0;

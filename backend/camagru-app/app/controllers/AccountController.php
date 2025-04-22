@@ -134,4 +134,48 @@ class AccountController {
             }
         }
     }
+
+    public function updateEmailNotification() {
+        header('Content-Type: application/json');
+
+        requireAuth();
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $input = json_decode(file_get_contents("php://input"), true);
+            $emailNotifications = isset($input['notifications_enabled']) ? (int)$input['notifications_enabled'] : 0;
+            $userId = $_SESSION['user_id'];
+
+
+            if (!isset($userId)) {
+                response('error', '/login', message('auth.not_logged_in'));
+                return;
+            }
+
+            $user = new User();
+            if ($user->updateEmailNotifications($userId, $emailNotifications)) {
+                response('success', null, message('account.email_notification_update_success'));
+            } else {
+                response('error', null, message('account.email_notification_update_failed'));
+            }
+        }
+    }
+
+    public function getEmailNotification() {
+        header('Content-Type: application/json');
+
+        requireAuth();
+
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $userId = $_SESSION['user_id'];
+
+            if (!isset($userId)) {
+                response('error', '/login', message('auth.not_logged_in'));
+                return;
+            }
+
+            $user = new User();
+            $emailNotifications = $user->getEmailNotifications($userId);
+            echo json_encode(['status' => 'success', 'email_notifications' => $emailNotifications]);
+        }
+    }
 }
