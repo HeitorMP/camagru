@@ -1,19 +1,21 @@
 <?php
 
-    function message($key) {
-        static $messages = null;
+require_once BASE_PATH . '/app/helpers/sanitizer.php';
 
-        if ($messages === null) {
-            $messages = require BASE_PATH . '/config/messages.php';
-        }
+function message($key) {
+    static $messages = null;
 
-        $keys = explode('.', $key);
-        $msg = $messages;
-
-        foreach ($keys as $k) {
-            if (!isset($msg[$k])) return null;
-            $msg = $msg[$k];
-        }
-
-        return $msg;
+    if ($messages === null) {
+        $messages = require BASE_PATH . '/config/messages.php';
     }
+
+    $keys = explode('.', $key);
+    $msg = $messages;
+
+    foreach ($keys as $k) {
+        if (!isset($msg[$k])) return null;
+        $msg = $msg[$k];
+    }
+
+    return sanitizeText($msg);
+}

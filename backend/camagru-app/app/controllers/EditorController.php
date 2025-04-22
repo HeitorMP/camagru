@@ -4,54 +4,68 @@ require_once BASE_PATH . '/app/models/Images.php';
 require_once BASE_PATH . '/app/helpers/redirect.php';
 require_once BASE_PATH . '/app/helpers/messages.php';
 require_once BASE_PATH . '/app/helpers/merge_image.php';
+require_once BASE_PATH . '/app/helpers/sanitizer.php';
 
 class ImageController {
    
     public function uploadImage() {
         requireAuth();
-
+    
         if ($_SERVER['REQUEST_METHOD'] != 'POST') {
             response('error', null, message('image.upload_failed'));
         }
+    
         $userId = $_SESSION['user_id'];
-        $overlayName = $_POST['overlay'];
+        $overlayName = $_POST['overlay'] ?? null;
 
+        $overlayName = sanitizeText($overlayName);
+    
         if (!$userId || !isset($_FILES['photo']) || !$overlayName) {
             response('error', null, message('image.upload_failed'));
         }
-        
-        // create the upload directory if it doesn't exist
-        if (!is_dir(BASE_PATH . '/public/gallery/' . $userId)) {
-            mkdir(BASE_PATH . '/public/gallery/' . $userId, 0777, true);
+    
+        // Cria o diretório do usuário, se não existir
+        $userDir = BASE_PATH . '/public/gallery/' . $userId;
+        if (!is_dir($userDir)) {
+            mkdir($userDir, 0777, true);
         }
-        
-
-        $filename = uniqid() . '.png';
-        $targetFile =  BASE_PATH . '/public/gallery/' . $userId . '/' . $filename;
-        
-        // merge the image with the overlay
+    
         $baseImagePath = $_FILES['photo']['tmp_name'];
-        $overlayPath = BASE_PATH . '/config/overlays/' . $overlayName . ".png";
+        $outputExt = 'png'; // padrão
+        $filename = uniqid();
+        $outputPath = ''; // definido depois
+    
+        // Verifica qual tipo de overlay existe (gif ou png)
+        $gifPath = BASE_PATH . "/config/overlays/{$overlayName}.gif";
+        $pngPath = BASE_PATH . "/config/overlays/{$overlayName}.png";
 
-        $outputPath = $targetFile;
-        if (!file_exists($overlayPath)) {
+        
+        if (file_exists($gifPath)) {
+            $outputExt = 'gif';
+            $outputPath = "{$userDir}/{$filename}.gif";
+            
+            if (!overlay_gif_on_image($baseImagePath, $gifPath, $outputPath)) {
+                echo json_encode(['status' => 'error', 'error' => 'aqui']);
+                response('error', null, message('image.upload_failed'));
+            }
+        } elseif (file_exists($pngPath)) {
+            $outputExt = 'png';
+            $outputPath = "{$userDir}/{$filename}.png";
+            
+            if (!merge_images($baseImagePath, $pngPath, $outputPath)) {
+                response('error', null, message('image.upload_failed'));
+            }
+        } else {
             response('error', null, message('image.overlay_not_found'));
-            exit;
         }
-        if (!merge_images($baseImagePath, $overlayName, $outputPath)) {
-            response('error', null, message('image.upload_failed'));
-            exit;
-        }
-
+    
         $user = new User();
         $ownerName = $user->getUsernameById($userId);
         if (!$ownerName) {
             response('error', null, message('image.upload_failed'));
-            exit;
         }
-
-
-        $imagePath = 'gallery/' . $userId . "/" . $filename;
+    
+        $imagePath = "gallery/{$userId}/{$filename}.{$outputExt}";
         $images = new Images();
         if ($images->addImage($userId, $ownerName, $imagePath)) {
             response('success', '/gallery', message('image.upload_success'));
@@ -59,7 +73,7 @@ class ImageController {
             response('error', null, message('image.upload_failed'));
         }
     }
-
+    
     public function getGallery() {
         requireAuth();
     
@@ -81,6 +95,8 @@ class ImageController {
         $imageName = $input['filename'] ?? null;
         $userId = $_SESSION['user_id'];
 
+        $imageName = sanitizeText($imageName);
+        
         if (!$userId || !$imageName) {
             response('error', null, message('image.delete_failed'));
         }

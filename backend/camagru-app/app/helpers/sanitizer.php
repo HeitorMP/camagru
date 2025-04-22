@@ -2,6 +2,35 @@
 
 require_once BASE_PATH . '/app/models/User.php';
 
+
+
+function sanitizeText($text) {
+    return htmlspecialchars(trim($text), ENT_QUOTES, 'UTF-8');
+}
+
+function sanitizeEmail($email) {
+    return filter_var(trim($email), FILTER_SANITIZE_EMAIL);
+}
+
+function sanitizePassword($password) {
+    return trim($password);
+}
+
+function sanitizeForHTML($text) {
+    return htmlspecialchars(trim($text), ENT_QUOTES, 'UTF-8');
+}
+
+function sanitizeCode($code) {
+    return preg_replace('/[^a-zA-Z0-9]/', '', trim($code));
+}
+
+function sanitizeBoolean($value) {
+    return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
+}
+
+
+
+
 function verifyLoginInput($username, $password) {
     $errors = [];
 

@@ -7,7 +7,7 @@ async function fetchCsrfToken() {
             credentials: 'include'
         });
         const data = await response.json();
-        csrfToken = data.csrf_token;
+        csrfToken = data.csrf_token || null;
 
     } catch (error) {
         const flash = document.getElementById('flashMessage');
@@ -42,12 +42,22 @@ export async function init() {
 
     document.getElementById('loginForm').addEventListener('submit', async function (e) {
         e.preventDefault();
-    
+        
+        const loginButton = document.getElementById('login-btn');
+        if (loginButton) {
+            loginButton.textContent = 'Trying to log in...';
+            loginButton.disabled = true;
+        }
         const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value.trim();
-    
         const flash = document.getElementById('flashMessage');
-
+        
+        if (!username || !password) {
+            flash.textContent = 'All fields are needed.';
+            flash.style.color = 'red';
+            return;
+        }
+    
         if (!csrfToken) {
             await fetchCsrfToken();
             if (!csrfToken) {
@@ -77,9 +87,13 @@ export async function init() {
             }
     
         } catch (error) {
-            console.error('Erro de rede ou fatal:', error);
             flash.textContent = 'Erro de rede. Tente novamente mais tarde.';
             flash.style.color = 'red';
+        }
+        
+        if (loginButton) {
+            loginButton.textContent = 'Log in now';
+            loginButton.disabled = false;
         }
     });
 } 

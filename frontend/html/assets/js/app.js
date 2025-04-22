@@ -32,7 +32,6 @@ const routeHtml = {
     '/image': '/pages/image.html',
 };
 
-
 // protected routes
 const privateRoutes = ['/account', '/logout', '/gallery', '/editor', '/update_username', '/update_email', '/update_password'];
 
@@ -45,42 +44,60 @@ async function checkAuth() {
     return data.authenticated === true;
 }
 
-async function loadPage(path) {
-    const isAuth = await checkAuth();
-    if (path === '/') {
-        window.location.href = isAuth ? '/gallery' : '/login';
-    }
+function showErrorMessage(message) {
+    const app = document.getElementById('app');
+    app.innerHTML = `<div class="alert alert-danger text-center mt-4">${message}</div>`;
+}
 
-    const body = document.querySelector('body');
-    if (privateRoutes.includes(path)) {
-        if (!isAuth) {
-            window.location.href = '/login';
+async function loadPage(path) {
+    try {
+        const isAuth = await checkAuth();
+
+        if (path === '/') {
+            window.location.href = isAuth ? '/gallery' : '/login';
             return;
         }
 
-        if (path === '/gallery') {
-            body.insertAdjacentHTML('afterbegin', insertNavBarGallery());
-        }
-        else {
-            body.insertAdjacentHTML('afterbegin', insertLoggedInNavBar());
-        }
-    } else {
-        if ((path === '/public' || path === '/image') && isAuth) {
-            body.insertAdjacentHTML('afterbegin', insertLoggedInNavBar());
+        const body = document.querySelector('body');
+
+        if (privateRoutes.includes(path)) {
+            if (!isAuth) {
+                window.location.href = '/login';
+                return;
+            }
+
+            if (path === '/gallery') {
+                body.insertAdjacentHTML('afterbegin', insertNavBarGallery());
+            } else {
+                body.insertAdjacentHTML('afterbegin', insertLoggedInNavBar());
+            }
         } else {
-            body.insertAdjacentHTML('afterbegin', insertLoggedOutNavBar());
+            if ((path === '/public' || path === '/image') && isAuth) {
+                body.insertAdjacentHTML('afterbegin', insertLoggedInNavBar());
+            } else {
+                body.insertAdjacentHTML('afterbegin', insertLoggedOutNavBar());
+            }
         }
-    }
 
-    if (routeHtml[path]) {
-        const html = await fetch(routeHtml[path]).then(res => res.text());
-        document.getElementById('app').innerHTML = html;
+        if (routeHtml[path]) {
+            const res = await fetch(routeHtml[path]);   
+            if (!res.ok) throw new Error('Failed to fetch HTML page');
+            const html = await res.text();
+            document.getElementById('app').innerHTML = html;
 
-        if (routeModules[path]) {
-            const mod = await routeModules[path]();
-            if (mod.init) mod.init();
+            if (routeModules[path]) {
+                try {
+                    const mod = await routeModules[path]();
+                    if (mod.init) mod.init();
+                } catch (err) {
+                    showErrorMessage("Erro ao carregar a funcionalidade da página.");
+                }
+            }
         }
+    } catch (err) {
+        showErrorMessage("Reload.");
     }
 }
+
 
 loadPage(path);

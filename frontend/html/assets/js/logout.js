@@ -2,28 +2,17 @@ let csrfToken = null;
 
 async function fetchCsrfToken() {
     try {
-
         const response = await fetch('/api/?page=auth_check', {
             method: 'GET',
             credentials: 'include'
         });
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
         const data = await response.json();
-        csrfToken = data.csrf_token;
+        csrfToken = data.csrf_token || null;
 
-        if (!csrfToken) {
-            throw new Error('CSRF token não retornado pelo servidor');
-        }
     } catch (error) {
-        console.error('Erro ao obter CSRF token:', error);
         const flash = document.getElementById('flashMessage');
-        if (flash) {
-            flash.textContent = 'Erro ao carregar token de segurança. Tente novamente.';
-            flash.style.color = 'red';
-        }
-        throw error;
+        flash.textContent = 'CSRF token invalid. Try again';
+        flash.style.color = 'red';
     }
 }
 
@@ -40,28 +29,28 @@ function clearCookies() {
 }
 
 export async function init() {
-    // Obter CSRF token e aguardar conclusão
+
     try {
         await fetchCsrfToken();
     } catch (error) {
-        console.warn('Falha ao obter CSRF token, abortando logout');
+        alert('Error fetching CSRF token. Please try again.');
         return;
     }
 
     if (!csrfToken) {
         const flash = document.getElementById('flashMessage');
         if (flash) {
-            flash.textContent = 'Erro: Token de segurança não disponível.';
+            flash.textContent = 'Error: Security token not available.';
             flash.style.color = 'red';
         }
         return;
     }
 
-    // Limpar armazenamento local
+    // Clear local storage
     localStorage.clear();
     sessionStorage.clear();
 
-    // Enviar requisição de logout
+    // Send logout request
     try {
 
         const response = await fetch('/api/?page=logout', {
@@ -75,14 +64,10 @@ export async function init() {
 
         const data = await response.json();
 
-
-        // Atualizar CSRF token se retornado
         if (data.csrf_token) {
             csrfToken = data.csrf_token;
-
         }
 
-        // Limpar cookies após logout bem-sucedido
         if (data.status === 'success') {
             clearCookies();
 
@@ -90,15 +75,14 @@ export async function init() {
         } else {
             const flash = document.getElementById('flashMessage');
             if (flash) {
-                flash.textContent = data.message || 'Erro ao fazer logout.';
+                flash.textContent = data.message || 'Error while logging out.';
                 flash.style.color = 'red';
             }
         }
     } catch (error) {
-        console.error('Erro de rede ou CSRF:', error);
         const flash = document.getElementById('flashMessage');
         if (flash) {
-            flash.textContent = 'Erro de rede ou CSRF. Tente novamente.';
+            flash.textContent = 'Network or CSRF error. Please try again.';
             flash.style.color = 'red';
         }
     }

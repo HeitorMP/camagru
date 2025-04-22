@@ -27,9 +27,21 @@ export async function init() {
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value.trim();
         const confirm_password = document.getElementById('confirmPassword').value.trim();
+        const flash = document.getElementById('flashMessage');
+        const registerButton = document.getElementById('register-btn');
 
+        if (!username || !password || !email || !confirm_password) {
+            flash.textContent = 'All fields are needed.';
+            flash.style.color = 'red';
+            return;
+        }
 
         try {
+            if (registerButton) {
+                registerButton.textContent = 'Trying to register...';
+                registerButton.disabled = true;
+            }
+
             const response = await fetch('/api/?page=register', {
                 method: 'POST',
                 headers: {
@@ -40,8 +52,6 @@ export async function init() {
      
             const data = await response.json();
 
-
-            const flash = document.getElementById('flashMessage');
             if (response.ok && data.status === 'success') {
                 localStorage.setItem('flashMessage', data.message);
                 localStorage.setItem('flashStatus', 'success');
@@ -51,7 +61,11 @@ export async function init() {
                 flash.style.color = 'red';
             }
         } catch (error) {
-            console.error('Erro:', error);
+            alert('Network error. Please try again later.');
+        }
+        if (registerButton) {
+            registerButton.textContent = 'Create account';
+            registerButton.disabled = false;
         }
     });
 }

@@ -15,14 +15,18 @@ class AuthController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $input = json_decode(file_get_contents("php://input"), true);
             $username = strtolower(trim($input['username'] ?? ''));
+            $email = filter_var(trim($input['email'] ?? ''));
+            $password = trim($input['password'] ?? '');
+            $confirm_password = trim($input['confirm_password'] ?? '');
 
-            $email = filter_var(trim($input['email'] ?? ''), FILTER_SANITIZE_EMAIL);
+            $username = sanitizeText($username);
+            $email = sanitizeEmail($email);
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 response('error', null, 'Invalid email format');
                 return;
             }
-            $password = trim($input['password'] ?? '');
-            $confirm_password = trim($input['confirm_password'] ?? '');
+            $password = sanitizePassword($password);
+            $confirm_password = sanitizePassword($confirm_password);
 
             $errors = verifyRegisterInput($username, $email, $password, $confirm_password);
             if (!empty($errors)) {
@@ -31,7 +35,6 @@ class AuthController {
             }
 
             $user = new User();
-            // Check if the username or email already exists
             if (!$user->checkUsernameAvailability($username)) {
                 response('error', null, message('auth.username_taken'));
 
@@ -43,6 +46,8 @@ class AuthController {
             
             // Create a new user sending the activation code
             $activation_code = generateActivationCode();
+            $activation_code = sanitizeCode($activation_code);
+
             if ($user->create($username, $email, $password, $activation_code)) {
                 sendActivationEmail($email, $activation_code);
                 response('success', '/login', message('auth.register_success'));
@@ -61,6 +66,9 @@ class AuthController {
             $username = strtolower(trim($input['username'] ?? ''));
             $password = trim($input['password'] ?? '');
 
+            $username = sanitizeText($username);
+            $password = sanitizePassword($password);
+
             $errors = verifyLoginInput($username, $password);
             if (!empty($errors)) {
                 response('error', null, $errors);
@@ -70,7 +78,6 @@ class AuthController {
             $user = new User();
 
             // Check is verified
-            
             if ($user->login($username, $password)) {
                 $id = $user->getIdByUsername($username);
                 
@@ -98,7 +105,13 @@ class AuthController {
     
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $input = json_decode(file_get_contents("php://input"), true);
-            $email = filter_var(trim($input['email'] ?? ''), FILTER_SANITIZE_EMAIL);
+            $email = filter_var(trim($input['email'] ?? ''));
+
+            $email = sanitizeEmail($email);
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                response('error', null, 'Invalid email format');
+                return;
+            }
 
             $errors = verifyEmailInput($email);
             if (!empty($errors)) {

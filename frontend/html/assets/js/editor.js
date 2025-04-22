@@ -6,7 +6,7 @@ async function fetchCsrfToken() {
           credentials: 'include'
       });
       const data = await response.json();
-      csrfToken = data.csrf_token;
+      csrfToken = data.csrf_token || null;
 
   } catch (error) {
       const flash = document.getElementById('flashMessage');
@@ -16,7 +16,6 @@ async function fetchCsrfToken() {
 }
 
 export async function init() {
-
 
   const width = 320;
   let height = 0;
@@ -30,14 +29,14 @@ export async function init() {
   let stream = null;
 
   function getOverlays() {
-    const overlays = [
-      '42-black',
-      '42-piscine',
-      'dog',
-      'gb',
+    return [
+      { name: '42-piscine', type: 'png' },
+      { name: 'shadow', type: 'png' },
+      { name: 'crt', type: 'png' },
+      { name: 'rain', type: 'gif' }, 
     ];
-    return overlays;
   }
+  
 
   await fetchCsrfToken();
 
@@ -50,12 +49,14 @@ export async function init() {
     const uploadModeButton = document.getElementById("upload-mode");
 
     const overlayOptions = getOverlays();
-    overlayOptions.forEach((overlay) => {
+      overlayOptions.forEach((overlayObj) => {
       const option = document.createElement("option");
-      option.value = overlay;
-      option.textContent = overlay;
+      option.value = overlayObj.name;
+      option.dataset.type = overlayObj.type; // Armazena o tipo como atributo de dados
+      option.textContent = overlayObj.name;
       overlaySelect.appendChild(option);
     });
+
 
     video = document.getElementById("video");
     uploadCanvas = document.getElementById("upload-canvas");
@@ -101,7 +102,9 @@ export async function init() {
           video.play();
         })
         .catch((err) => {
-          console.error(`An error occurred: ${err}`);
+          const flash = document.getElementById('flashMessage');
+          flash.textContent = 'Unable to access camera. Please check your permissions.';
+          flash.style.color = 'red';
         });
     }
 
@@ -146,21 +149,28 @@ export async function init() {
     });
 
     overlaySelect.addEventListener("change", () => {
-      const selected = overlaySelect.value;
+      const selectedOption = overlaySelect.selectedOptions[0];
+      const selected = selectedOption.value;
+      const type = selectedOption.dataset.type;
+      const overlay = document.getElementById("overlay");
+    
       if (selected === "") {
         overlay.style.display = "none";
         startButton.disabled = true;
       } else {
-        overlay.src = `/assets/media/preview/${selected}.png`;
+        overlay.src = `/assets/media/preview/${selected}.${type}`;
         overlay.style.display = "block";
         startButton.disabled = mode === 'upload' && !selectedFile;
       }
     });
+    
 
     startButton.addEventListener("click", async (e) => {
       e.preventDefault();
       if (overlay.style.display === "none") {
-        alert("Select overlay.");
+        const flash = document.getElementById('flashMessage');
+        flash.textContent = 'Select an overlay first.';
+        flash.style.color = 'red';
         return;
       }
       await takeAndUploadPhoto();
@@ -188,13 +198,17 @@ export async function init() {
         };
       });
     } else {
-      alert("No file selected.");
+      const flash = document.getElementById('flashMessage');
+      flash.textContent = 'No file selected.';
+      flash.style.color = 'red';
       return;
     }
 
     uploadCanvas.toBlob(async (blob) => {
       if (!blob) {
-        alert("Erro ao gerar a imagem.");
+        const flash = document.getElementById('flashMessage');
+        flash.textContent = 'Error generating image.';
+        flash.style.color = 'red';
         return;
       }
 
@@ -211,6 +225,11 @@ export async function init() {
       formData.append("photo", blob, "captured.png");
       formData.append("overlay", overlay);
       formData.append("csrf_token", csrfToken );
+      const uploadBtn = document.getElementById("start-button");
+      if (uploadBtn) {
+        uploadBtn.textContent = "Uploading...";
+        uploadBtn.disabled = true;
+      }
 
       try {
         const response = await fetch('/api/?page=upload_photo', {
@@ -218,19 +237,28 @@ export async function init() {
           credentials: 'include',
           body: formData
         });
-
+        // console.log(response.text());
         const data = await response.json();
+        console.log(data);
 
         if (response.ok && data.status === 'success') {
           await loadGallery();
         } else {
-          alert(data.message || 'Erro ao enviar a foto.');
+          const flash = document.getElementById('flashMessage');
+          flash.textContent = data.message || 'Error sending image. Try again.';
+          flash.style.color = 'red';
         }
       } catch (error) {
-        console.error('Erro ao enviar a foto:', error);
-        alert('Erro ao enviar a foto. Tente novamente mais tarde.');
+        const flash = document.getElementById('flashMessage');
+        flash.textContent = 'Error sending image. Try again.';
+        flash.style.color = 'red';
+      }
+      if (uploadBtn) {
+        uploadBtn.textContent = "Take/Upload Photo";
+        uploadBtn.disabled = false;
       }
     }, 'image/png');
+
   }
 
   async function loadGallery() {
@@ -285,16 +313,21 @@ export async function init() {
             if (response.ok && data.status === 'success') {
               await loadGallery();
             } else {
-              alert(data.message || 'Erro ao excluir a foto.');
+              const flash = document.getElementById('flashMessage');
+              flash.textContent = data.message || 'Error deleting image. Try again.';
+              flash.style.color = 'red';
             }
           } catch (error) {
-            console.error('Erro ao excluir a foto:', error);
-            alert('Erro ao excluir a foto. Tente novamente mais tarde.');
+            const flash = document.getElementById('flashMessage');
+            flash.textContent = 'Error deleting image. Try again.';
+            flash.style.color = 'red';
           }
         });
       });
     } catch (error) {
-      console.error("Erro ao carregar a galeria:", error);
+      const flash = document.getElementById('flashMessage');
+      flash.textContent = 'Error loading gallery. Try again later.';
+      flash.style.color = 'red';
     }
   }
 

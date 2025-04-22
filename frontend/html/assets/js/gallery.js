@@ -6,7 +6,7 @@ async function fetchCsrfToken() {
           credentials: 'include'
       });
       const data = await response.json();
-      csrfToken = data.csrf_token;
+      csrfToken = data.csrf_token || null;
   } catch (error) {
       const flash = document.getElementById('flashMessage');
       flash.textContent = 'Csrf token invalid. Try again';
@@ -65,7 +65,6 @@ export async function init() {
         return [];
       }
     } catch (err) {
-      console.error('Erro ao carregar galeria:', err);
       return [];
     }
   }
@@ -102,7 +101,6 @@ export async function init() {
         return [];
       }
     } catch (err) {
-      console.error('Erro ao carregar galeria:', err);
       return [];
     }
   }
@@ -148,7 +146,7 @@ export async function init() {
 
         }
       } catch (error) {
-        console.error('Error fetching likes count:', error);
+        alert('Error fetching likes count. Please try again later.');
       }
 
       const item = document.createElement('div');
@@ -210,6 +208,5 @@ export async function init() {
     nextButton.disabled = currentPage === totalPages;
   }
 
-  // Inicia carregando a galeria do usuário atual
   await loadGallery();
 }

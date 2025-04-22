@@ -53,7 +53,6 @@ export async function init() {
         return [];
       }
     } catch (err) {
-      console.error('Erro ao carregar galeria:', err);
       return [];
     }
   }
@@ -91,7 +90,7 @@ export async function init() {
 
           }
         } catch (error) {
-          console.error('Error fetching likes count:', error);
+          alert('Error fetching likes count:', error);
         }
       const item = document.createElement('div');
       item.classList.add('grid-item', 'card');

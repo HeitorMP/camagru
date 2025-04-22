@@ -8,6 +8,7 @@ require_once BASE_PATH . '/app/helpers/redirect.php';
 require_once BASE_PATH . '/app/helpers/messages.php';
 require_once BASE_PATH . '/app/helpers/auth.php';
 require_once BASE_PATH . '/app/helpers/mail_sender.php';
+require_once BASE_PATH . '/app/helpers/sanitizer.php';
 
 class GalleryController
 {
@@ -41,6 +42,8 @@ class GalleryController
             response('error', null, message('gallery.user_not_found'));
             exit;
         }
+
+        $username = sanitizeText($username);
 
         $user = new User();
         $userId = $user->getIdByUsername($username);
@@ -82,7 +85,7 @@ class GalleryController
         $image_id = $input['id'] ?? null;
         $user_id = $_SESSION['user_id'] ?? null;
 
-        if (!$image_id || !$user_id) {
+        if (!$image_id || !$user_id || !is_null($image_id) || !is_null($user_id)) {
             echo json_encode(['status' => 'error', 'message' => message('likes.invalid_request')]);
             exit;
         }
@@ -108,7 +111,7 @@ class GalleryController
         $image_id = $input['id'] ?? null;
         $user_id = $_SESSION['user_id'] ?? null;
 
-        if (!$image_id || !$user_id) {
+        if (!$image_id || !$user_id || !is_numeric($image_id) || !is_numeric($user_id)) {
             echo json_encode(['status' => 'error', 'message' => message('likes.invalid_request')]); 
             exit;
         }
@@ -151,7 +154,7 @@ class GalleryController
         $input = json_decode(file_get_contents('php://input'), true);
         $image_id = $input['id'] ?? null;
 
-        if (!$image_id) {
+        if (!$image_id || !is_numeric($image_id)) {
             echo json_encode(['status' => 'error', 'message' => message('comments.invalid_request')]);
             exit;
         }
@@ -183,6 +186,7 @@ class GalleryController
             echo json_encode(['status' => 'error', 'message' => message('comments.invalid_request')]);
             exit;
         }
+
 
         $comments = new Comments();
         $user = new User();

@@ -42,7 +42,6 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self'; connect-
 $csrfExcludedRoutes = ['logout', 'activate'];
 
 
-
 define('BASE_PATH', dirname(__DIR__));
 
 require BASE_PATH . '/config/database.php';

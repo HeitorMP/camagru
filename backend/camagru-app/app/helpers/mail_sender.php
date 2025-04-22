@@ -1,5 +1,7 @@
 <?php
 
+require_once BASE_PATH . '/app/helpers/sanitizer.php';
+
     function generateActivationCode($length = 16) {
         return bin2hex(random_bytes($length / 2));
     }
@@ -21,6 +23,8 @@
     
     function sendActivationEmail($email, $activation_code) {
         $subject = "Activate your account";
+        $email = sanitizeEmail($email);
+        $activation_code = sanitizeCode($activation_code);
     
         $message = "
             <html>
@@ -40,6 +44,8 @@
     }
 
     function sendResetPassword($email, $new_pass)  {
+        $email = sanitizeEmail($email);
+        
         $subject = "Your new password";
         $message = "This is yout new password, change soon as possible: ";
         $message .= "password: " . $new_pass;
@@ -47,7 +53,11 @@
         mail($email, $subject, $message, $headers);
     }
 
-    function sendCommentUpdate($email, $comment, $senderUsername) {
+    function sendCommentUpdate($email, $comment, $senderUsername) {     
+        $email = sanitizeEmail($email);
+        $comment = sanitizeText($comment);
+        $senderUsername = sanitizeText($senderUsername);
+
         $subject = "New comment on your post";
         $message = "You have a new comment from " . $senderUsername . " on your post!\n";
         $message .= "Comment: " . $comment;

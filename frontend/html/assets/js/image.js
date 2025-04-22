@@ -8,7 +8,7 @@ async function fetchCsrfToken() {
             credentials: 'include'
         });
         const data = await response.json();
-        csrfToken = data.csrf_token;
+        csrfToken = data.csrf_token || null;
     } catch (error) {
       const commentsContainer = document.getElementById('commentsContainer');
       commentsContainer.innerHTML = `<p class="text-muted">csrf token error, try again</p>`;
@@ -221,7 +221,6 @@ async function loadImage(id) {
         }, 3000);
       })
       .catch(err => {
-        console.error("Erro ao copiar:", err);
         alert("Erro ao copiar o link.");
       });
     });

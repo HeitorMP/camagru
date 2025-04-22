@@ -7,7 +7,7 @@ async function fetchCsrfToken() {
             credentials: 'include'
         });
         const data = await response.json();
-        csrfToken = data.csrf_token;
+        csrfToken = data.csrf_token || null;
         
     } catch (error) {
         const flash = document.getElementById('flashMessage');
@@ -17,8 +17,6 @@ async function fetchCsrfToken() {
 }
 
 async function toggleNotifications(current_checked_status) {
-
-    
 
     try {
         const response = await fetch('/api/?page=update_email_notification', {
@@ -38,7 +36,6 @@ async function toggleNotifications(current_checked_status) {
             flash.style.color = 'green';
         }
     } catch (error) {
-        console.error('Network error:', error);
         const flash = document.getElementById('flashMessage');
         flash.textContent = 'Network error. Please try again later.';
         flash.style.color = 'red';
@@ -47,22 +44,34 @@ async function toggleNotifications(current_checked_status) {
 
 export async function init() {
     const flash = document.getElementById('flashMessage');
+    const usernameBtn = document.getElementById('updateUsernameButton');
+    const emailBtn = document.getElementById('updateEmailButton');
+    const passwordBtn = document.getElementById('updatePasswordButton');
 
     await fetchCsrfToken();
     
     document.getElementById('updateUsernameButton').addEventListener('click', async function (e) {
         e.preventDefault();
         const username = document.getElementById('username').value.trim();
+        if (usernameBtn) {
+            usernameBtn.textContent = 'Updating...';
+            usernameBtn.disabled = true;
+        }
+
+        if (!username) {
+            flash.textContent = 'Username is needed.';
+            flash.style.color = 'red';
+            return;
+        }
         
         if (!csrfToken) {
             await fetchCsrfToken();
             if (!csrfToken) {
-                flash.textContent = 'Erro: Token de segurança não disponível.';
+                flash.textContent = 'Erro: Csrf Token Error, try again.';
                 flash.style.color = 'red';
                 return;
             }
         }
-
 
         try {
             const response = await fetch('/api/?page=update_username', {
@@ -84,9 +93,13 @@ export async function init() {
                 flash.style.color = 'red';
             }
         } catch (error) {
-            console.error('Network error:', error);
+
             flash.textContent = 'Network error. Please try again later.';
             flash.style.color = 'red';
+        }
+        if (usernameBtn) {
+            usernameBtn.textContent = 'Update username';
+            usernameBtn.disabled = false;
         }
         
     });
@@ -95,6 +108,15 @@ export async function init() {
     document.getElementById('updateEmailButton').addEventListener('click', async function (e) {
         e.preventDefault();
         const email = document.getElementById('email').value.trim();
+        if (emailBtn) {
+            emailBtn.textContent = 'Updating...';
+            emailBtn.disabled = true;
+        }
+        if (!email) {
+            flash.textContent = 'Email is needed.';
+            flash.style.color = 'red';
+            return;
+        }
 
         if (!csrfToken) {
             await fetchCsrfToken();
@@ -125,9 +147,13 @@ export async function init() {
                 flash.style.color = 'red';
             }
         } catch (error) {
-            console.error('Network error:', error);
+
             flash.textContent = 'Network error. Please try again later.';
             flash.style.color = 'red';
+        }
+        if (emailBtn) {
+            emailBtn.textContent = 'Update email';
+            emailBtn.disabled = false;
         }
     });
 
@@ -137,6 +163,15 @@ export async function init() {
         const currentPassword = document.getElementById('currentPassword').value.trim();
         const password = document.getElementById('password').value.trim();
         const confirmPassword = document.getElementById('confirmPassword').value.trim();
+        if (passwordBtn) {
+            passwordBtn.textContent = 'Updating...';
+            passwordBtn.disabled = true;
+        }
+        if (!currentPassword || !password || !confirmPassword) {
+            flash.textContent = 'All fields are needed.';
+            flash.style.color = 'red';
+            return;
+        }
 
         if (!csrfToken) {
             await fetchCsrfToken();
@@ -147,7 +182,6 @@ export async function init() {
             }
         }
 
-        
         try {
             const response = await fetch('/api/?page=update_password', {
                 method: 'POST',
@@ -168,9 +202,13 @@ export async function init() {
                 flash.style.color = 'red';
             }
         } catch (error) {
-            console.error('Network error:', error);
+
             flash.textContent = 'Network error. Please try again later.';
             flash.style.color = 'red';
+        }
+        if (passwordBtn) {
+            passwordBtn.textContent = 'Update password';
+            passwordBtn.disabled = false;
         }
     });
 
@@ -189,11 +227,7 @@ export async function init() {
         
         checkbox.checked = data.email_notifications;
     } catch (error) {
-        console.error('Network error:', error);
         flash.textContent = 'Network error. Please try again later.';
         flash.style.color = 'red';
     }
-
-
-    
 }

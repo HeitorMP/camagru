@@ -17,7 +17,7 @@ class AccountController {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $input = json_decode(file_get_contents("php://input"), true);
-            $username = strtolower(trim($input['username'] ?? ''));
+            $username = strtolower($input['username'] ?? '');
             $userId = $_SESSION['user_id'];
 
             if (!isset($userId)) {
@@ -25,7 +25,9 @@ class AccountController {
                 return;
             }
 
+            $username = sanitizeText($username);
             $errors = verifyUsernameInput($username);
+
             if (!empty($errors)) {
                 response('error', null, $errors);
                 return;
@@ -68,7 +70,13 @@ class AccountController {
                 return;
             }
 
+            $email = sanitizeEmail($email);
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                response('error', null, 'Invalid email format');
+                return;
+            }
             $errors = verifyEmailInput($email);
+
             if (!empty($errors)) {
                 response('error', null, $errors);
                 return;
@@ -112,7 +120,12 @@ class AccountController {
                 return;
             }
 
+            $currentEmail = sanitizeCode($currentPassword);
+            $newPassword = sanitizePassword($newPassword);
+            $confirmPassword = sanitizePassword($confirmPassword);
+
             $errors = verifyPasswordInput($newPassword, $confirmPassword);
+            
             if (empty($currentPassword)) {
                 $errors[] = message('account.empty_current_password');
             }
@@ -145,11 +158,12 @@ class AccountController {
             $emailNotifications = isset($input['notifications_enabled']) ? (int)$input['notifications_enabled'] : 0;
             $userId = $_SESSION['user_id'];
 
-
             if (!isset($userId)) {
                 response('error', '/login', message('auth.not_logged_in'));
                 return;
             }
+
+            $emailNotifications = sanitizeBoolean($emailNotifications);
 
             $user = new User();
             if ($user->updateEmailNotifications($userId, $emailNotifications)) {
@@ -175,6 +189,8 @@ class AccountController {
 
             $user = new User();
             $emailNotifications = $user->getEmailNotifications($userId);
+
+            $emailNotifications = sanitizeBoolean($emailNotifications);  
             echo json_encode(['status' => 'success', 'email_notifications' => $emailNotifications]);
         }
     }
