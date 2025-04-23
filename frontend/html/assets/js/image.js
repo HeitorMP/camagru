@@ -1,5 +1,6 @@
 let csrfToken = null;
 let imageUrl = null;
+let hasAccess = false;
 
 async function fetchCsrfToken() {
     try {
@@ -9,6 +10,7 @@ async function fetchCsrfToken() {
         });
         const data = await response.json();
         csrfToken = data.csrf_token || null;
+        hasAccess = data.authenticated || false;
     } catch (error) {
       const commentsContainer = document.getElementById('commentsContainer');
       commentsContainer.innerHTML = `<p class="text-muted">csrf token error, try again</p>`;
@@ -82,14 +84,90 @@ function renderComment({ owner_name, content, created_at }) {
     }
   }
 
+
+  // $('textarea').keyup(function() {
+    
+  //   var characterCount = $(this).val().length,
+  //       current = $('#current'),
+  //       maximum = $('#maximum'),
+  //       theCount = $('#the-count');
+      
+  //   current.text(characterCount);
+   
+    
+  //   /*This isn't entirely necessary, just playin around*/
+  //   if (characterCount < 70) {
+  //     current.css('color', '#666');
+  //   }
+  //   if (characterCount > 70 && characterCount < 90) {
+  //     current.css('color', '#6d5555');
+  //   }
+  //   if (characterCount > 90 && characterCount < 100) {
+  //     current.css('color', '#793535');
+  //   }
+  //   if (characterCount > 100 && characterCount < 120) {
+  //     current.css('color', '#841c1c');
+  //   }
+  //   if (characterCount > 120 && characterCount < 139) {
+  //     current.css('color', '#8f0001');
+  //   }
+    
+  //   if (characterCount >= 140) {
+  //     maximum.css('color', '#8f0001');
+  //     current.css('color', '#8f0001');
+  //     theCount.css('font-weight','bold');
+  //   } else {
+  //     maximum.css('color','#666');
+  //     theCount.css('font-weight','normal');
+  //   }
+    
+        
+  // });
+
+
   function setupCommentForm(imageId) {
     const form = document.getElementById('commentForm');
-    const textarea = document.getElementById('commentText');
+    const textarea = document.getElementById('comment-text');
+    const commentButton = document.getElementById('comment-btn');
 
-  
+    if (!hasAccess) {
+      if (form) {
+        form.style.display = 'none';
+      }
+      if (commentButton) {
+        commentButton.style.display = 'none';
+      }
+    }
+    
+    textarea.addEventListener('keyup', function() {
+      const characterCount = this.value.length;
+      const current = document.getElementById('current');
+      const maximum = document.getElementById('maximum');
+      const theCount = document.getElementById('the-count');
+      current.textContent = characterCount;
+      maximum.textContent = "/ 255";
+      current.style.color = '#666';
+      maximum.style.color = '#666';
+      theCount.style.fontWeight = 'normal';
+      if (characterCount > 140) {
+        maximum.style.color = '#8f0001';
+        current.style.color = '#8f0001';
+        theCount.style.fontWeight = 'bold';
+      } else if (characterCount > 120) {
+        current.style.color = '#841c1c';
+      } else if (characterCount > 100) {
+        current.style.color = '#793535';
+      } else if (characterCount > 90) {
+        current.style.color = '#6d5555';
+      } else if (characterCount > 70) {
+        current.style.color = '#666';
+      }
+    });
+    
+    
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-  
+      
       const comment = textarea.value.trim();
       if (!comment) return;
   
@@ -134,7 +212,6 @@ function renderComment({ owner_name, content, created_at }) {
                   </svg>
                   <i class="bi bi-facebook"></i>
               </a>`;
-
   }
   
 async function loadImage(id) {
@@ -159,12 +236,13 @@ async function loadImage(id) {
   
     document.getElementById('imageContainer').append(img);
   } else {
-    document.getElementById('imageContainer').textContent = data.message || 'Erro ao carregar imagem.';
+    document.getElementById('imageContainer').textContent = data.message || 'Error loading image';
   }
-
-
 }
-  export async function init() {
+
+
+
+export async function init() {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
     if (!id) return;
@@ -172,6 +250,17 @@ async function loadImage(id) {
     loadImage(id);
     await fetchCsrfToken();
     const likeButton = document.getElementById('like-btn');
+    const dislikeButton = document.getElementById('dislike-btn');
+
+      if (!hasAccess) {
+        if (likeButton) {
+            likeButton.style.display = 'none';
+        }
+        if (dislikeButton) {
+            dislikeButton.style.display = 'none';
+        }
+      }
+
     if (likeButton) {
         likeButton.addEventListener('click', async () => {
             const res = await fetch(`/api/?page=like_image`, {
@@ -183,16 +272,19 @@ async function loadImage(id) {
                 }
             });
             const data = await res.json();
+
             if (data.status === 'success') {
               loadImage(id);
+            } else {
+              const flash = document.getElementById('flashMessage');
+              flash.innerHTML = `<p class="text-muted">${data.message}</p>`;
             }
         });
     }
 
-    const dislikeButton = document.getElementById('dislike-btn');
     if (dislikeButton) {
         dislikeButton.addEventListener('click', async () => {
-            const res = await fetch(`/api/?page=dislike_image`, {
+            const response = await fetch(`/api/?page=dislike_image`, {
                 method: 'POST',
                 credentials: 'include',
                 body: JSON.stringify({ id, csrf_token: csrfToken }),
@@ -200,10 +292,14 @@ async function loadImage(id) {
                     'Content-Type': 'application/json'
                 }
             });
-            const data = await res.json();
+            const data = await response.json();
 
+            const flash = document.getElementById('flashMessage');
+            flash.innerHTML = '';
             if (data.status === 'success') {
               loadImage(id);
+            } else {
+              flash.innerHTML = `<p class="text-muted">${data.message}</p>`;
             }
         });
     }

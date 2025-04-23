@@ -62,6 +62,7 @@
         ],
         'likes' => [
             'liked' => 'Image liked successfully.',
+            'no_access' => 'You must be logged in to like/dislike this image.',
             'unliked' => 'Image unliked successfully.',
             'already_liked' => 'You have already liked this image.',
             'invalid_request' => 'Invalid request.',
@@ -71,7 +72,10 @@
             'comment_failed' => 'Failed to add comment.',
             'comment_delete_success' => 'Comment deleted successfully.',
             'comment_delete_failed' => 'Failed to delete comment.',
+            'no_access' => 'You must be logged in to comment.',
             'no_comments' => 'No comments found for this image.',
             'invalid_request' => 'Invalid request.',
+            'empty_comment' => 'Comment cannot be empty.',
+            'comment_too_long' => 'Comment exceeds the maximum length of 255 characters.',
         ],
     ];

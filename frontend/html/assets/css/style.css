@@ -229,7 +229,7 @@ p {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background-color: #198754;
+  background-color: #197a87;
   color: white;
   padding: 12px 20px;
   border-radius: 8px;
@@ -245,3 +245,9 @@ p {
   opacity: 1;
   transform: translateY(0);
 }
+
+#the-count {
+  float: right;
+  padding: 0.1rem 0 0 0;
+  font-size: 0.875rem;
+} 

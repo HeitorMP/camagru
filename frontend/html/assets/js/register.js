@@ -15,6 +15,28 @@ async function fetchCsrfToken() {
     }
 }
 
+function validateInputs(username, email, password, confirm_password) {
+    let errors = [];
+
+    if (!username || !password || !email, !confirm_password) {
+        errors.push('All fields are needed.');
+    }
+
+    if (!/^[A-Za-z][A-Za-z\d]{7,15}$/.test(username)) {
+        errors.push('Username must start with a letter and be 8-16 characters long.');
+    }
+
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,16}$/.test(password)) {
+        errors.push('Password must be 8-16 characters long and contain at least one uppercase letter, one lowercase letter, and one number.');
+    }
+
+    if (password !== confirm_password) {
+        errors.push('Passwords do not match.');
+    }
+
+    return errors;
+}
+
 export async function init() {
     const form = document.getElementById('registerForm');
     if (!form) return;
@@ -30,8 +52,10 @@ export async function init() {
         const flash = document.getElementById('flashMessage');
         const registerButton = document.getElementById('register-btn');
 
-        if (!username || !password || !email || !confirm_password) {
-            flash.textContent = 'All fields are needed.';
+        const errors = validateInputs(username, email, password, confirm_password);
+
+        if (errors.length > 0) {
+            flash.textContent = errors.join(' ');
             flash.style.color = 'red';
             return;
         }

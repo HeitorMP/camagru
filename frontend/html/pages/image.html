@@ -5,14 +5,9 @@
         <!-- Left side: Camera/File Preview -->
         <div class="col-12 col-md-8">
           <h3>Image</h3>
-
           <div id="imageContainer" class="w-100 ratio ratio-4x3 position-relative"></div>
           <h4 id="imageTitle" class="text-truncate"></h4>
           <div id="imageDate" class="text-muted"></div>
-
-
-
-
           <div class="btn-group gap-2" role="group">
             <div class="d-flex gap-2 mb-3">
               <button id="like-btn" class="btn btn-primary">
@@ -44,8 +39,10 @@
                 d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z" />
               </svg>
             </button>
+            <div id="flashMessage" class="flash"></div>
           </div>
         </div>
+
         <div id="customToast" class="custom-toast">
           Link copied!
         </div>
@@ -63,9 +60,13 @@
           <form id="commentForm" class="mt-4">
             <div class="mb-3">
               <label for="commentText" class="form-label">Leave a comment!</label>
-              <textarea class="form-control" id="commentText" rows="3" required></textarea>
+              <textarea id="comment-text" class="form-control" id="commentText" rows="3" maxlength="255" required></textarea>
+              <div id="the-count">
+                <span id="current">0</span>
+                <span id="maximum">/ 255</span>
+              </div>
             </div>
-            <button type="submit" class="btn btn-primary">Send</button>
+            <button id="comment-btn" type="submit" class="btn btn-primary">Send</button>
           </form>
         </div>
 

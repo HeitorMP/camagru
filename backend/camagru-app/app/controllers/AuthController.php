@@ -5,9 +5,10 @@ require_once BASE_PATH . '/app/helpers/redirect.php';
 require_once BASE_PATH . '/app/helpers/messages.php';
 require_once BASE_PATH . '/app/helpers/mail_sender.php';
 require_once BASE_PATH . '/app/helpers/sanitizer.php';
+require_once BASE_PATH . '/app/helpers/auth.php';
 
 class AuthController {
-    
+
     //ajax register
     public function register() {
         header('Content-Type: application/json');

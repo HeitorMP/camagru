@@ -155,16 +155,16 @@ class AccountController {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $input = json_decode(file_get_contents("php://input"), true);
-            $emailNotifications = isset($input['notifications_enabled']) ? (int)$input['notifications_enabled'] : 0;
+            $emailNotifications = $input['notifications_enabled'];
             $userId = $_SESSION['user_id'];
 
             if (!isset($userId)) {
                 response('error', '/login', message('auth.not_logged_in'));
                 return;
             }
-
-            $emailNotifications = sanitizeBoolean($emailNotifications);
-
+            
+            $emailNotifications = $emailNotifications ? 1 : 0;
+            
             $user = new User();
             if ($user->updateEmailNotifications($userId, $emailNotifications)) {
                 response('success', null, message('account.email_notification_update_success'));
@@ -179,7 +179,7 @@ class AccountController {
 
         requireAuth();
 
-        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') { 
             $userId = $_SESSION['user_id'];
 
             if (!isset($userId)) {

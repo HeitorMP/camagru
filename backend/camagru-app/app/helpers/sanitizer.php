@@ -2,8 +2,6 @@
 
 require_once BASE_PATH . '/app/models/User.php';
 
-
-
 function sanitizeText($text) {
     return htmlspecialchars(trim($text), ENT_QUOTES, 'UTF-8');
 }
@@ -27,8 +25,6 @@ function sanitizeCode($code) {
 function sanitizeBoolean($value) {
     return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
 }
-
-
 
 
 function verifyLoginInput($username, $password) {
@@ -144,3 +140,15 @@ function verifyPasswordInput($password, $confirm_password) {
     }
     return $errors;
 }
+
+function verifyCommentInput($comment) {
+    $errors = [];
+
+    if (empty($comment)) {
+        $errors[] = message('comments.empty_comment');
+    }
+    if (strlen($comment) > 255) {
+        $errors[] = message('comments.comment_too_long');
+    }
+    return $errors;
+}   

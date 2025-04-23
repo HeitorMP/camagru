@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install -y \
     imagemagick \
     && rm -rf /var/lib/apt/lists/*
 
-# Instala extensões PHP (incluindo imagick)
+# Instala extensões PHP
 RUN docker-php-ext-install pdo pdo_mysql mysqli gd
 
 # Instala imagick via PECL

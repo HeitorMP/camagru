@@ -33,7 +33,6 @@ services:
       - db_password
       - db_root_password
 
-
   maildev:
     image: maildev/maildev
     ports:

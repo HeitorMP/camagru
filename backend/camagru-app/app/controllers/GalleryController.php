@@ -85,7 +85,7 @@ class GalleryController
         $image_id = $input['id'] ?? null;
         $user_id = $_SESSION['user_id'] ?? null;
 
-        if (!$image_id || !$user_id || !is_null($image_id) || !is_null($user_id)) {
+        if (!$image_id || !$user_id) {
             echo json_encode(['status' => 'error', 'message' => message('likes.invalid_request')]);
             exit;
         }
@@ -101,7 +101,7 @@ class GalleryController
     }
 
     public function dislikeImage() {
-        requireAuth();
+        requireAuth(message('likes.no_access'));
         if ($_SERVER['REQUEST_METHOD'] != 'POST') {
             echo json_encode(['status' => 'error', 'message' => message('likes.invalid_request')]);
             exit;
@@ -145,7 +145,7 @@ class GalleryController
     }
 
     public function getComments() {
-        requireAuth();
+        requireAuth(message('comments.no_access'));
         if ($_SERVER['REQUEST_METHOD'] != 'POST') {
             echo json_encode(['status' => 'error', 'message' => message('comments.invalid_request')]);
             exit;
@@ -172,7 +172,7 @@ class GalleryController
     }
 
     public function addComment() {
-        requireAuth();
+        requireAuth(message('comments.no_access'));
         if ($_SERVER['REQUEST_METHOD'] != 'POST') {
             echo json_encode(['status' => 'error', 'message' => message('comments.invalid_request')]);
             exit;
@@ -182,17 +182,25 @@ class GalleryController
         $image_id = $input['id'] ?? null;
         $comment = $input['comment'] ?? null;
 
-        if (!$image_id || !$comment) {
+        if (!$image_id) {
             echo json_encode(['status' => 'error', 'message' => message('comments.invalid_request')]);
             exit;
         }
+        // Sanitize the comment to prevent XSS
+        $comment = htmlspecialchars($comment, ENT_QUOTES, 'UTF-8');
+        $errors = verifyCommentInput($comment);
 
+        if (!empty($errors)) {
+            echo json_encode(['status' => 'error', 'message' => implode(', ', $errors)]);
+            exit;
+        }
 
         $comments = new Comments();
         $user = new User();
         $image = new Images();
 
-        $imageOwner = $user->getById($image_id);
+        $imageOwnerUsername = $image->getImageOwner($image_id);
+        $imageOwner = $user->getByUsername($imageOwnerUsername);
         $imageOwnerUsername = $imageOwner['username'];
         $imageOwnerEmail = $imageOwner['email'];
         $imageOwnerEmailNotification = $imageOwner['email_notifications'];
@@ -205,12 +213,10 @@ class GalleryController
             exit;
         }
 
-        // Sanitize the comment to prevent XSS
-        $comment = htmlspecialchars($comment, ENT_QUOTES, 'UTF-8');
 
         if ($comments->addComment($image_id, $_SESSION['user_id'], $commentOwner, $comment)) {
             // Send email notification to the image owner
-            if ($imageOwnerEmailNotification && $imageOwnerEmail) {
+            if ($imageOwnerEmailNotification && $imageOwnerEmail && ($imageOwnerUsername != $commentOwner)) {
                 sendCommentUpdate($imageOwnerEmail, $comment, $commentOwner);
             }
             echo json_encode(['status' => 'success', 'message' => message('comments.comment_success')]);

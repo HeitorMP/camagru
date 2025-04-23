@@ -16,7 +16,64 @@ async function fetchCsrfToken() {
     }
 }
 
+function validateUsername(username) {
+    let errors = [];
+
+    if (!username) {
+        errors.push('Username can not be empty.');
+    }
+
+    if (!/^[A-Za-z][A-Za-z\d]{7,15}$/.test(username)) {
+        errors.push('Username must start with a letter and be 8-16 characters long.');
+    }
+
+    return errors;
+}
+
+function validateEmail(email) {
+    let errors = [];
+
+    if (!email) {
+        errors.push('Email can not be empty.');
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errors.push('Invalid email format.');
+    }
+
+    return errors;
+}
+
+function validatePassword(current, newPassword, confirmPassword) {
+    let errors = [];
+
+    if (!current || !newPassword || !confirmPassword) {
+        errors.push('All fields are needed.');
+    }
+
+    if (newPassword !== confirmPassword) {
+        errors.push('New password and confirmation do not match.');
+    }
+
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,16}$/.test(current)) {
+        errors.push('Currrent password must be 8-16 characters long and contain at least one uppercase letter, one lowercase letter, and one number.');
+    }
+
+
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,16}$/.test(newPassword)) {
+        errors.push('New Password must be 8-16 characters long and contain at least one uppercase letter, one lowercase letter, and one number.');
+    }
+
+    if (newPassword !== confirmPassword) {
+        errors.push('New password and confirmation do not match.');
+    }
+
+    return errors;
+}
+
+
 async function toggleNotifications(current_checked_status) {
+    console.log(current_checked_status);
 
     try {
         const response = await fetch('/api/?page=update_email_notification', {
@@ -28,9 +85,10 @@ async function toggleNotifications(current_checked_status) {
             body: JSON.stringify({ csrf_token: csrfToken, notifications_enabled: current_checked_status })
         });
         
+        // console.log(response.text());
         const data = await response.json();
-        
-        if (response.ok && data.status === 'success') {
+        console.log(data);
+        if (response.ok) {
             const flash = document.getElementById('flashMessage');
             flash.textContent = data.message || 'Notification settings updated successfully.';
             flash.style.color = 'green';
@@ -58,9 +116,14 @@ export async function init() {
             usernameBtn.disabled = true;
         }
 
-        if (!username) {
-            flash.textContent = 'Username is needed.';
+        const errors = validateUsername(username);
+        if (errors.length > 0) {
+            flash.textContent = errors.join(' ');
             flash.style.color = 'red';
+            if (usernameBtn) {
+                usernameBtn.textContent = 'Update username';
+                usernameBtn.disabled = false;
+            }
             return;
         }
         
@@ -112,9 +175,15 @@ export async function init() {
             emailBtn.textContent = 'Updating...';
             emailBtn.disabled = true;
         }
-        if (!email) {
-            flash.textContent = 'Email is needed.';
+
+        const errors = validateEmail(email);
+        if (errors.length > 0) {
+            flash.textContent = errors.join(' ');
             flash.style.color = 'red';
+            if (emailBtn) {
+                emailBtn.textContent = 'Update email';
+                emailBtn.disabled = false;
+            }
             return;
         }
 
@@ -167,9 +236,15 @@ export async function init() {
             passwordBtn.textContent = 'Updating...';
             passwordBtn.disabled = true;
         }
-        if (!currentPassword || !password || !confirmPassword) {
-            flash.textContent = 'All fields are needed.';
+
+        const errors = validatePassword(currentPassword, password, confirmPassword);
+        if (errors.length > 0) {
+            flash.textContent = errors.join(' ');
             flash.style.color = 'red';
+            if (passwordBtn) {
+                passwordBtn.textContent = 'Update password';
+                passwordBtn.disabled = false;
+            }
             return;
         }
 
@@ -224,7 +299,6 @@ export async function init() {
             credentials: 'include'
         });
         const data = await response.json();
-        
         checkbox.checked = data.email_notifications;
     } catch (error) {
         flash.textContent = 'Network error. Please try again later.';

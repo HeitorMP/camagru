@@ -52,11 +52,10 @@ export async function init() {
       overlayOptions.forEach((overlayObj) => {
       const option = document.createElement("option");
       option.value = overlayObj.name;
-      option.dataset.type = overlayObj.type; // Armazena o tipo como atributo de dados
+      option.dataset.type = overlayObj.type;
       option.textContent = overlayObj.name;
       overlaySelect.appendChild(option);
     });
-
 
     video = document.getElementById("video");
     uploadCanvas = document.getElementById("upload-canvas");
@@ -237,7 +236,7 @@ export async function init() {
           credentials: 'include',
           body: formData
         });
-        // console.log(response.text());
+
         const data = await response.json();
         console.log(data);
 
@@ -270,8 +269,13 @@ export async function init() {
       });
 
       const data = await response.json();
+      if (!data || !data.photos || data.photos.length === 0) {
+        return;
+      }
+
       const gallery = document.getElementById("gallery-editor");
       gallery.innerHTML = "";
+
 
       data.photos.forEach((photo) => {
         const card = document.createElement("div");
