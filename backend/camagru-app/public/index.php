@@ -59,7 +59,7 @@ $gallery = new GalleryController();
 $allowedRoutes = [
     'register', 'login', 'activate', 'update_username', 'update_email',
     'update_password', 'logout', 'auth_check', 'reset_password',
-    'upload_photo', 'get_gallery', 'get_gallery_by_username', 'delete_photo',
+    'upload_photo', 'get_gallery', 'get_gallery_by_username', 'delete_photo', 'edit_photo', 'get_original_image',
     'get_public_profile', 'get_image', 'like_image', 'get_like_count', 'dislike_image',
     'get_comments', 'add_comment', 'delete_comment', 'update_email_notification', 'get_email_notification',
 ];
@@ -129,6 +129,9 @@ switch ($page) {
     case 'upload_photo':
         $editor->uploadImage();
         break;
+    case 'edit_photo':
+        $editor->editPhoto();
+        break;
     case 'get_email_notification':
         $account->getEmailNotification();
         break;
@@ -140,6 +143,9 @@ switch ($page) {
         break;
     case 'get_public_profile':
         $gallery->getPublicProfile();
+        break;
+    case 'get_original_image':
+        $editor->getOriginalImage();
         break;
     case 'delete_photo':
         $editor->deleteImage();

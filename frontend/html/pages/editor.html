@@ -2,15 +2,23 @@
   <div class="container">
     <div class="card border-light-subtle shadow-sm p-3">
       <div class="row g-4 align-items-start">
-        <!-- Left side: Camera/File Preview -->
-        <div class="col-12 col-md-8">
+        <!-- Left side: Overlays -->
+        <div class="col-12 col-md-3">
+          <h3>Overlays</h3>
+          <div class="overlay-container">
+            <div class="overlay-grid">
+            </div>
+          </div>
+        </div>
+
+        <!-- Center: Camera/File Preview -->
+        <div class="col-12 col-md-6">
           <h3>Preview</h3>
           <div id="camera-wrapper" class="w-100 ratio ratio-4x3 position-relative">
             <video id="video" autoplay muted playsinline
               class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover" style="z-index: 1; display: none;"></video>
-            <canvas id="upload-canvas" class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover"></canvas>
-            <img src="" id="overlay"
-              style="position: absolute; top: 0; left: 0; z-index: 2; width: 100%; height: 100%; pointer-events: none; display: none;" />
+            <canvas id="upload-canvas" class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover" style="z-index: 2;"></canvas>
+            <canvas id="overlay-canvas" class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover" style="z-index: 3;"></canvas>
           </div>
           <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
             <div class="btn-group" role="group">
@@ -19,15 +27,12 @@
             </div>
             <input type="file" id="file-input" accept="image/*" style="display: none;" />
             <button id="start-button" disabled class="btn btn-primary">Take/Upload Photo</button>
-            <select id="overlay-select" class="form-select w-auto">
-              <option value="" selected>Filters: none</option>
-            </select>
             <div id="flashMessage" class="flash"></div>
           </div>
         </div>
 
         <!-- Right side: Gallery -->
-        <div class="col-12 col-md-4 right-column">
+        <div class="col-12 col-md-3">
           <h3>Your Photos</h3>
           <div id="gallery-editor" class="d-flex flex-column gap-3"></div>
         </div>

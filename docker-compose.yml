@@ -25,8 +25,11 @@ services:
     command: >
       sh -c "
         mkdir -p /var/www/html/public/gallery &&
+        mkdir -p /var/www/html/storage/originals &&
         chown -R www-data:www-data /var/www/html/public/gallery &&
         chmod -R 755 /var/www/html/public/gallery &&
+        chown -R www-data:www-data /var/www/html/storage/originals &&
+        chmod -R 755 /var/www/html/storage/originals &&
         apache2-foreground
       "
     secrets:

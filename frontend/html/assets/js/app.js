@@ -32,6 +32,17 @@ const routeHtml = {
     '/image': '/pages/image.html',
 };
 
+function setupNavbarToggler() {
+    const toggler = document.querySelector('.navbar-toggler');
+    const collapse = document.getElementById('navbarNavAltMarkup');
+
+    if (toggler && collapse) {
+        toggler.addEventListener('click', function () {
+            collapse.classList.toggle('show');
+        });
+    }
+}
+
 // protected routes
 const privateRoutes = ['/account', '/logout', '/gallery', '/editor', '/update_username', '/update_email', '/update_password'];
 
@@ -68,14 +79,20 @@ async function loadPage(path) {
 
             if (path === '/gallery') {
                 body.insertAdjacentHTML('afterbegin', insertNavBarGallery());
+                setupNavbarToggler();
             } else {
                 body.insertAdjacentHTML('afterbegin', insertLoggedInNavBar());
+                setupNavbarToggler();
             }
+            
+            
         } else {
             if ((path === '/public' || path === '/image') && isAuth) {
                 body.insertAdjacentHTML('afterbegin', insertLoggedInNavBar());
+                setupNavbarToggler();
             } else {
                 body.insertAdjacentHTML('afterbegin', insertLoggedOutNavBar());
+                setupNavbarToggler();
             }
         }
 
@@ -94,6 +111,8 @@ async function loadPage(path) {
                 }
             }
         }
+
+        
     } catch (err) {
         showErrorMessage("Reload.");
     }

@@ -250,4 +250,69 @@ p {
   float: right;
   padding: 0.1rem 0 0 0;
   font-size: 0.875rem;
-} 
+}
+
+#navbarNavAltMarkup {
+  background-color: rgb(21,69,110);
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.navbar .navbar-collapse {
+  position: absolute;    
+  top: 100%;            
+  left: 0;
+  width: 100%;           
+  z-index: 2000;         
+}
+
+.navbar .navbar-collapse.bg-dark {
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.overlay-container {
+  width: 150px; /* Ajuste conforme o espaço disponível */
+  height: 200px; /* Altura fixa para economizar espaço */
+  overflow-y: auto; /* Rolagem vertical */
+  border: 1px solid #ccc;
+  padding: 5px;
+}
+.overlay-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); /* Miniaturas pequenas */
+  gap: 5px;
+}
+.overlay-item {
+  cursor: pointer;
+  border: 2px solid transparent;
+  border-radius: 4px;
+}
+.overlay-item img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.overlay-item.selected {
+  border-color: blue;
+  background-color: rgba(0, 0, 255, 0.1);
+}
+
+/* Estilo para dispositivos móveis - o menu estará posicionado absolutamente */
+@media (max-width: 991px) {
+  .navbar .navbar-collapse {
+    position: absolute;  /* Tira do fluxo normal */
+    top: 100%;            /* Encaixa logo abaixo da navbar */
+    left: 0;
+    width: 100%;          /* Ocupa toda a largura */
+    z-index: 2000;        /* Garante que o menu fique acima de outros elementos */
+  }
+}
+
+/* Estilo para telas grandes - o menu será exibido normalmente */
+@media (min-width: 992px) {
+  .navbar .navbar-collapse {
+    position: static;  /* Deixa no fluxo normal */
+    display: flex;     /* Exibe os itens da navbar em linha */
+  }
+}

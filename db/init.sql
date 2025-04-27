@@ -14,6 +14,8 @@ CREATE TABLE images (
     user_id INT NOT NULL,
     owner_name VARCHAR(50) NOT NULL,
     image_path VARCHAR(255) NOT NULL,
+    original_image_path VARCHAR(255) NOT NULL,
+    overlays TEXT, -- ["42-piscine", "shadow"]
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

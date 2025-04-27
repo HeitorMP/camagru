@@ -15,14 +15,34 @@ class Images extends DB {
         $stmt->execute([$imageId]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-    public function addImage($userId, $username ,$imagePath) {
-        $stmt = $this->pdo->prepare("INSERT INTO images (user_id, owner_name, image_path) VALUES (?, ?, ?)");
-        try {
-            $stmt->execute([$userId, $username, $imagePath]);
-        } catch (PDOException $e) {
-            return false;
-        }
-        return true;
+
+    public function getImagesByUserId($userId) {
+        $stmt = $this->pdo->prepare("
+            SELECT id, user_id, owner_name, image_path, original_image_path, overlays
+            FROM images
+            WHERE user_id = ?
+            ORDER BY created_at DESC
+        ");
+        $stmt->execute([$userId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function addImage($userId, $ownerName, $imagePath, $originalImagePath, $overlays) {
+        // $stmt = $this->pdo->prepare("INSERT INTO images (user_id, owner_name, image_path) VALUES (?, ?, ?)");
+        $stmt = $this->pdo->prepare("
+            INSERT INTO images (user_id, owner_name, image_path, original_image_path, overlays)
+            VALUES (?, ?, ?, ?, ?)
+        ");
+        return $stmt->execute([$userId, $ownerName, $imagePath, $originalImagePath, $overlays]);
+    }
+
+    public function updateImage($imageId, $imagePath, $overlays) {
+        $stmt = $this->pdo->prepare("
+            UPDATE images
+            SET image_path = ?, overlays = ?
+            WHERE id = ?
+        ");
+        return $stmt->execute([$imagePath, $overlays, $imageId]);
     }
 
     public function getImageOwner($imageId) {
