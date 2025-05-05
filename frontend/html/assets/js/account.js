@@ -73,7 +73,6 @@ function validatePassword(current, newPassword, confirmPassword) {
 
 
 async function toggleNotifications(current_checked_status) {
-    console.log(current_checked_status);
 
     try {
         const response = await fetch('/api/?page=update_email_notification', {
@@ -85,9 +84,7 @@ async function toggleNotifications(current_checked_status) {
             body: JSON.stringify({ csrf_token: csrfToken, notifications_enabled: current_checked_status })
         });
         
-        // console.log(response.text());
         const data = await response.json();
-        console.log(data);
         if (response.ok) {
             const flash = document.getElementById('flashMessage');
             flash.textContent = data.message || 'Notification settings updated successfully.';

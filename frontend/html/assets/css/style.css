@@ -122,7 +122,7 @@ video {
 }
 
 #gallery-editor {
-  max-height: 800px;
+  max-height: 600px;
   overflow-y: auto;
   padding-right: 10px;
   scroll-behavior: smooth;

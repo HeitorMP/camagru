@@ -1,6 +1,6 @@
 let csrfToken = null;
 let editImageId = null;
-let mode = 'camera'; // 'camera' or 'upload'
+let mode = null; // 'camera' or 'upload'
 let width = 320;
 let height = 0;
 let streaming = false;
@@ -103,7 +103,6 @@ function startEditMode(photo) {
         const context = uploadCanvas.getContext("2d");
         context.drawImage(img, 0, 0, width, height);
 
-        // Pre-selecionar overlays
         const overlays = photo.overlays ? JSON.parse(photo.overlays) : [];
         const items = document.querySelectorAll('.overlay-item');
         items.forEach(item => {
@@ -126,6 +125,8 @@ export async function init() {
     function getOverlays() {
         return [
             { name: '42-piscine', type: 'png' },
+            { name: '42', type: 'png' },
+            { name: 'moustache', type: 'png' },
             { name: 'shadow', type: 'png' },
             { name: 'crt', type: 'png' },
         ];
@@ -148,6 +149,7 @@ export async function init() {
             return;
         }
 
+        let overlayContainer = document.getElementById("overlay-container");
         video = document.getElementById("video");
         uploadCanvas = document.getElementById("upload-canvas");
         overlayCanvas = document.getElementById("overlay-canvas");
@@ -159,6 +161,11 @@ export async function init() {
             flash.style.color = 'red';
             return;
         }
+
+        if (overlayContainer) {
+                if (mode === null)
+                    overlayContainer.style.display = "none";
+        }   
 
         // Preencher o grid de overlays dinamicamente
         const overlayOptions = getOverlays();
@@ -198,6 +205,7 @@ export async function init() {
             video.style.display = 'block';
             selectedFile = null;
             startButton.textContent = 'Take Photo';
+            overlayContainer.style.display = "block";
             initializeCamera();
             clearCanvas();
         }
@@ -207,9 +215,11 @@ export async function init() {
             editImageId = null; // Resetar modo de edição
             uploadModeButton.classList.add('active');
             cameraModeButton.classList.remove('active');
+            overlayContainer.style.display = "block";
             video.style.display = 'none';
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
+                video.srcObject = null;
                 stream = null;
             }
             startButton.textContent = 'Upload Photo';
@@ -239,7 +249,6 @@ export async function init() {
                     flash.style.color = 'red';
                 });
         }
-
         cameraModeButton.addEventListener('click', switchToCameraMode);
         uploadModeButton.addEventListener('click', switchToUploadMode);
 
@@ -277,17 +286,18 @@ export async function init() {
                         const context = uploadCanvas.getContext("2d");
                         context.drawImage(img, 0, 0, width, height);
                         startButton.disabled = document.querySelectorAll('.overlay-item.selected').length === 0;
+                        
                     };
                     img.src = event.target.result;
                 };
                 reader.readAsDataURL(selectedFile);
             }
         });
-
+        
         startButton.addEventListener("click", async (e) => {
             e.preventDefault();
             const selectedOverlays = Array.from(document.querySelectorAll('.overlay-item.selected'))
-                .map(item => ({ name: item.dataset.overlay, type: item.dataset.type }));
+            .map(item => ({ name: item.dataset.overlay, type: item.dataset.type }));
             
             if (selectedOverlays.length === 0) {
                 const flash = document.getElementById('flashMessage');
@@ -297,11 +307,10 @@ export async function init() {
             }
             await takeAndUploadPhoto(selectedOverlays);
         });
-
-        // Inicializar o preview com nenhum overlay
+        
         updateOverlayPreview([]);
     }
-
+    
     async function takeAndUploadPhoto(selectedOverlays) {
         const context = uploadCanvas.getContext("2d");
 
@@ -369,7 +378,6 @@ export async function init() {
                 });
 
                 const data = await response.json();
-                console.log(data);
 
                 if (response.ok && data.status === 'success') {
                     editImageId = null; // Resetar modo de edição
@@ -403,7 +411,6 @@ export async function init() {
             if (!data || !data.photos || data.photos.length === 0) {
                 return;
             }
-            console.log(data);
 
             const gallery = document.getElementById("gallery-editor");
             gallery.innerHTML = "";
@@ -417,8 +424,14 @@ export async function init() {
                 card.innerHTML = `
                     <div class="d-flex flex-column align-items-center">
                         <img src="${fullPath}" class="card-img-top mb-2" style="max-width: 100%; width: 250px; border-radius: 8px;" alt="User photo" />
-                        <button id="edit-${photo.id}" class="btn btn-sm btn-primary mt-2">Edit</button>
-                        <button id="delete-${filename}" class="btn btn-sm btn-danger mt-2">Delete</button>
+                        <div class="row align-items-start">
+                            <div class="col">
+                            <button id="edit-${photo.id}" class="btn btn-sm btn-primary mt-2">Edit</button>
+                            </div>
+                            <div class="col">
+                            <button id="delete-${filename}" class="btn btn-sm btn-danger mt-2">Delete</button>
+                            </div>
+                        </div>
                     </div>
                 `;
 
@@ -455,6 +468,7 @@ export async function init() {
 
                         if (response.ok && data.status === 'success') {
                             await loadGallery();
+                            location.reload();
                         } else {
                             const flash = document.getElementById('flashMessage');
                             flash.textContent = data.message || 'Error deleting image. Try again.';
@@ -466,6 +480,7 @@ export async function init() {
                         flash.style.color = 'red';
                     }
                 });
+
             });
         } catch (error) {
             const flash = document.getElementById('flashMessage');
@@ -473,9 +488,6 @@ export async function init() {
             flash.style.color = 'red';
         }
     }
-
-
-        startup();
-        loadGallery();
-
+    startup();
+    loadGallery();
 }

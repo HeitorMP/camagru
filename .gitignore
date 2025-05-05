@@ -3,3 +3,4 @@ env
 .vscode
 *.txt
 /backend/camagru-app/public/gallery
+/backend/camagru-app/storage/originals/
