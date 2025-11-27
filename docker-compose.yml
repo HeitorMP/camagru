@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   frontend:
     build:
@@ -8,6 +10,9 @@ services:
       - ./frontend/html:/var/www/html
     networks:
       - app-network
+    depends_on:
+      backend:
+        condition: service_healthy
 
   backend:
     build: ./backend
@@ -19,7 +24,8 @@ services:
     expose:
       - "80"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - app-network
     command: >
@@ -36,6 +42,13 @@ services:
       - db_password
       - db_root_password
 
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
   maildev:
     image: maildev/maildev
     ports:
@@ -43,6 +56,12 @@ services:
       - "1025:1025"
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "1080"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
 
   db:
     image: mysql:8
@@ -62,6 +81,13 @@ services:
       - db_password
       - db_root_password
 
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: camagru_phpmyadmin
@@ -72,9 +98,16 @@ services:
       PMA_HOST: db
       PMA_PORT: 3306
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
 secrets:
    db_password:
