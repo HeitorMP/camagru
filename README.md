@@ -28,8 +28,8 @@ camagru/
 ## env structure
 ```bash
 MYSQL_ROOT_PASSWORD=
-MYSQL_DATABASE=
 MYSQL_USER=
-MYSQL_PASSWORD=
 ```
-
+## secrets
+db_password
+db_root_password 
